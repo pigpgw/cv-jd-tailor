@@ -1,0 +1,17 @@
+# OS/editor/cache files
+.DS_Store
+*.tmp
+*.log
+.env
+.env.*
+.vscode/
+
+# Local private application data
+db/
+workflow/
+assets/
+
+# Generated binary documents
+*.pdf
+*.docx
+*.xlsx
