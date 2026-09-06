@@ -104,7 +104,7 @@ When the workflow succeeds, produce or update:
 - `workflow/지원전/<company_dir>/<company_dir>_포트폴리오_박건우.typ`
 - matching PDFs beside the two Typst files when Typst rendering is available
 
-Use `workflow/지원후/<company_dir>/` only for submitted, closed, or archived application copies when the user explicitly asks to archive/move an application, or when the task is specifically a post-application status update.
+Use `workflow/지원후/<company_dir>/` only as the immutable snapshot of files submitted at that time. Never edit, regenerate, overwrite, or delete anything under `workflow/지원후/` after submission, including when the source DB, skill rules, or `workflow/지원전/` are corrected. Post-submission status updates belong only in `db/지원회사_관리.md`; all content corrections belong in the source DB, shared instructions, or `workflow/지원전/`. A later application must create a new pre-submission artifact rather than changing the archived copy.
 
 If `company_dir` is omitted, derive it from the analyzer output company name.
 
@@ -360,7 +360,7 @@ Generation rules:
 - In resumes, the standalone project section is for non-employment work only, such as personal projects, education final projects, research, or capstone work. Separate each project clearly by project name, period, role, tech stack, and problem-solution-result bullets. Do not merge multiple projects into one vague block.
 - Treat SKALA as education, like 크래프톤 정글. Do not create a standalone project named `SKALA 4기 실습`, and do not position ordinary SKALA practice as if it were professional project work.
 - Describe SKALA's official identity only as `SK AI Leader Academy`, an AI service development education program, or SW/Data/AI education with team projects. Do not call it a backend/cloud-native course unless an official source explicitly says that.
-- Use SKALA only when it directly supports the JD, and usually under `교육/활동` with at most 1-2 bullets. Technical terms such as MSA, Spring Cloud, Kafka, JPA, PostgreSQL, Docker, query tuning, index/execution-plan analysis, transactions, concurrency, tests, and service decomposition may appear only as README/code/execution-backed individual practice evidence, not as an invented official course title.
+- Use SKALA only when it directly supports the JD, and usually under `교육/활동` with at most 1-2 bullets. Never use vague progress wording such as `개별 과제 코드를 정리하고 있습니다` or `배우고 있습니다`. Technical terms such as MSA, Spring Cloud, Kafka, JPA, PostgreSQL, Docker, query tuning, index/execution-plan analysis, transactions, concurrency, tests, and service decomposition may appear only as README/code/execution-backed implementation, analysis, or performance evidence, not as an invented official course title. Prefer result-focused wording such as PostgreSQL execution-plan analysis with index and Materialized View changes improving 4.5654ms to 3.0375ms (33.5%), or Python asyncio reducing 60-item processing from 6.2s to 0.6s.
 - Do not emphasize toy/service-theme descriptions from SKALA web-mini such as public trials, AI judges, voting, or relationship-dispute scenarios. If that work is relevant, translate it into concrete engineering evidence such as API design, STOMP/event flow, persistence, query behavior, testing, deployment, or client-server integration.
 - Treat 크래프톤 정글 as CS-focused education. It can support operating systems, networks, data structures/algorithms, and software fundamentals. Its final project Code Sync is also a strong frontend/project case, so include Code Sync for most IT roles unless the JD is clearly unrelated or another project is materially stronger.
 - Even when Code Sync is selected as a standalone project, keep 크래프톤 정글 itself as a separate education/activity entry when space allows. Usually compress it into one computer-science foundation bullet. Prefer Korean phrasing that starts with `주 100시간 이상 전산학을 학습하며`, then mention source-backed topics such as CSAPP, malloc, mmap, Tiny Web Server, and Pintos Thread/User Program/Virtual Memory/File System in one sentence. Pintos is not a tech stack item; it is an educational operating-system assignment, so do not put it in the tech-stack line or frame it as backend/infrastructure work.
@@ -446,5 +446,6 @@ Before claiming success, verify:
 - submitted artifacts do not contain defensive meta sections such as `제외 기술`
 - awards are dated chronological bullets and do not include `크래프톤 정글 우수 프로젝트 선정`
 - any user fact corrections made during the turn were reflected in the company artifact, and any needed Notion source update was either performed after explicit request or reported as pending
+- `workflow/지원후/` was not modified, regenerated, overwritten, or deleted; only the tracker status may change after submission
 
 If any validation step fails, report the exact missing item and stop short of claiming the full workflow succeeded.
