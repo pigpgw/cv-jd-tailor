@@ -1,26 +1,28 @@
 ---
 name: cv-jd-tailor
-description: Generate company-tailored Korean resume and portfolio application artifacts from a JD using this repository's local DB markdown files: resume source, portfolio source, and application tracker. Use when a JD URL/text/file should produce JD analysis, update application status, and write tailored markdown/Typst/PDF artifacts from local repository sources.
+description: Generate company-tailored Korean resume and portfolio application artifacts from a JD using the user's Notion Developer page as the primary resume/portfolio source and the local application tracker. Use when a JD URL/text/file should produce JD analysis, update application status, and write tailored markdown/Typst/PDF artifacts from verified source facts.
 ---
 
 # CV JD Tailor
 
 ## Purpose
 
-Turn one JD into local application artifacts while keeping reusable source facts and application status in this repository.
+Turn one JD into local application artifacts while keeping reusable source facts grounded in the user's Notion Developer page and application status in this repository.
 
-The JD is provided at invocation time, and base resume/portfolio facts are read from local DB markdown files.
+The JD is provided at invocation time, and base resume/portfolio facts are read from the Notion Developer page first.
 
 ## Source of Truth
 
-Use exactly these local DB files:
+Use these sources in order:
 
-- Resume source: `db/이력서_원천.md`
-- Portfolio source: `db/포트폴리오_원천.md`
+- Primary resume/portfolio source: Notion `박건우 | Developer`
+  - URL: `https://confused-dietician-c17.notion.site/Developer-3c77caa087bd80ff9d73f63aeeebb4d7?pvs=74`
+- Local resume snapshot, fallback only: `db/이력서_원천.md`
+- Local portfolio snapshot, fallback only: `db/포트폴리오_원천.md`
 - Application tracker: `db/지원회사_관리.md`
 - Shared portfolio assets: `assets/portfolio/`
 
-Do not create duplicate base-source files under company folders. Company folders may contain company-specific tailored artifacts only.
+Do not treat the local snapshot markdown files as newer than Notion unless the user explicitly says they corrected those files after the Notion page. Do not create duplicate base-source files under company folders. Company folders may contain company-specific tailored artifacts only.
 
 ## Inputs
 
@@ -36,16 +38,20 @@ Optional inputs:
 - `analysis_path`
 - `application_status`
 - `role_title`
-- `resume_source_path`
-- `portfolio_source_path`
+- `notion_source_url`
+- `resume_snapshot_path`
+- `portfolio_snapshot_path`
+- `existing_portfolio_pdf`
 - `application_tracker_path`
 - `output_root`
 - `archive_root`
 
 Default values:
 
-- `resume_source_path`: `db/이력서_원천.md`
-- `portfolio_source_path`: `db/포트폴리오_원천.md`
+- `notion_source_url`: `https://confused-dietician-c17.notion.site/Developer-3c77caa087bd80ff9d73f63aeeebb4d7?pvs=74`
+- `resume_snapshot_path`: `db/이력서_원천.md`
+- `portfolio_snapshot_path`: `db/포트폴리오_원천.md`
+- `existing_portfolio_pdf`: `박건우_포트폴리오.pdf` when available from the current workspace or a user-supplied path
 - `application_tracker_path`: `db/지원회사_관리.md`
 - `output_root`: `workflow/지원전`
 - `archive_root`: `workflow/지원후`
@@ -107,26 +113,28 @@ If `company_dir` is omitted, derive it from the analyzer output company name.
 ### 1. Normalize the Request
 
 - Read the JD input first.
-- Resolve local DB paths and output paths.
-- Do not use external base document URLs as default sources; this repository workflow uses the local DB files above.
+- Resolve the Notion source URL, local fallback snapshot paths, and output paths.
+- Use the Notion Developer page as the default base resume/portfolio source. Do not silently substitute local markdown snapshots when Notion access is available.
 - If `analysis_path` is provided, use it as the JD analysis source and skip fresh analysis.
 - Otherwise, run `company-jd-analyzer` and request its output as `workflow/지원전/<company_dir>/<company_dir>_채용분석.md`.
 - The analyzer output must use the 12-section Korean structure from `company-jd-analyzer`. If key sections are missing, fix the analysis before generating application documents.
 
-### 2. Read Local DB Sources
+### 2. Read Notion Source
 
-Read the resume source and portfolio source before writing tailored output.
+Fetch or otherwise verify the Notion Developer page before writing tailored output.
 
 Rules:
 
-- Treat `db/이력서_원천.md` and `db/포트폴리오_원천.md` as reusable facts, not final copy.
+- Treat the Notion Developer page as reusable facts, not final copy.
+- Use `db/이력서_원천.md` and `db/포트폴리오_원천.md` only as fallback snapshots when Notion cannot be accessed, or as supporting indexes for locating shared assets.
+- If Notion and local snapshots conflict, use Notion unless the user's latest correction explicitly says otherwise.
 - Treat `assets/portfolio/` as the shared source for reusable portfolio images such as architecture diagrams, component images, screenshots, diagrams, and logos.
 - Rewrite, reorder, and emphasize for JD fit.
-- Do not invent facts, numbers, responsibilities, tools, or outcomes missing from the DB sources or user corrections.
-- Do not invent motivation, intent, problem awareness, beliefs, or causal framing. Phrases like `~라는 문제의식으로` or `~하려는 의도로` require explicit source support from the DB or the user's latest correction.
+- Do not invent facts, numbers, responsibilities, tools, or outcomes missing from the Notion source or user corrections.
+- Do not invent motivation, intent, problem awareness, beliefs, or causal framing. Phrases like `~라는 문제의식으로` or `~하려는 의도로` require explicit source support from Notion or the user's latest correction.
 - Do not copy whole source sections verbatim unless the user explicitly asks for a base document.
 
-If a required DB source file is missing or empty, stop before generating tailored documents and report the missing source.
+If the Notion source cannot be accessed, report that directly. Use local snapshot markdown only if the user allows fallback or if the current task can proceed with an explicit stale-source warning.
 
 Shared asset folders:
 
@@ -139,7 +147,7 @@ Shared asset folders:
 When a portfolio case needs an image:
 
 - Prefer an existing shared asset from `assets/portfolio/`.
-- Record the asset path and usage context in `db/포트폴리오_원천.md`.
+- Record reusable asset path decisions in Notion when the user asks to update the source; otherwise mention them in the strategy document.
 - Use relative paths from the generated company Typst file, usually `../../../assets/portfolio/...` from `workflow/지원전/<company_dir>/`.
 - Do not duplicate the same reusable image into each company folder.
 - Put company-specific, non-reusable submitted attachments in that company folder only.
@@ -182,9 +190,9 @@ Required alignment:
 - Sections `4. JD에서 명시된 핵심 요구사항`, `5. JD에서 읽히는 숨은 요구사항`, `6. 이 회사가 원하는 사람상`, `7. 이력서에 강조해야 할 사인`, and `8. 우선 배치할 경험/프로젝트` are the primary decision source.
 - The resume headline, intro, core competencies, career bullet ordering, and project selection must be explainable from those sections.
 - The portfolio case order and case emphasis must be explainable from those sections.
-- If a source experience is strong in the DB but weak for the JD analysis, downplay or omit it instead of forcing it into the final document.
+- If a source experience is strong in Notion but weak for the JD analysis, downplay or omit it instead of forcing it into the final document.
 - If the analysis has `[확인필요]` or weak evidence, do not turn it into a confident resume claim.
-- If the analysis and local DB conflict, stop and resolve the conflict against the DB and the user's latest correction before generating final Typst.
+- If the analysis and source facts conflict, stop and resolve the conflict against Notion and the user's latest correction before generating final Typst.
 
 ### 4. Update Application Tracker
 
@@ -245,6 +253,9 @@ Inside `# 맞춤 포트폴리오`, include:
 - 프로젝트 순서
 - 각 프로젝트의 문제 -> 해결 -> 결과
 - JD와 직접 연결되는 증거
+- whether the JD explicitly requires, optionally accepts, or does not request a portfolio
+- whether to reuse `existing_portfolio_pdf` as-is, submit it with a tailored resume only, or generate a new company-specific portfolio
+- if reusing an existing portfolio, explain why its project order and evidence already match the JD better than a newly generated company-specific portfolio
 
 Inside `# 지원회사 관리 메모`, include:
 
@@ -263,7 +274,7 @@ Inside `# 조정 메모`, include:
 Create or update:
 
 - `workflow/지원전/<company_dir>/<company_dir>_이력서_박건우.typ`
-- `workflow/지원전/<company_dir>/<company_dir>_포트폴리오_박건우.typ`
+- `workflow/지원전/<company_dir>/<company_dir>_포트폴리오_박건우.typ` only when the JD requires or benefits from a tailored portfolio
 
 Use existing templates or nearby output patterns only when they exist in the repository. If templates are unavailable, create Typst files with conservative structure and clearly report that the base template was unavailable.
 
@@ -277,16 +288,40 @@ Template selection order:
 Generation rules:
 
 - Keep company-specific tailoring in the company folder.
-- Keep reusable career facts only in `db/이력서_원천.md` and `db/포트폴리오_원천.md`.
+- Always generate a tailored resume when the application is still open and the company/role are identified.
+- For portfolio submission, follow the JD first:
+  - if the JD requires a portfolio or project document, provide a portfolio PDF path, either reused or newly generated
+  - if the JD only optionally accepts a portfolio, include it only when it strengthens the required competencies
+  - if the JD does not ask for a portfolio and the resume already covers the required competencies, do not force a new portfolio
+- Prefer reusing `existing_portfolio_pdf` when its existing project order, evidence depth, and required-competency coverage are already stronger than a quick rewrite.
+- Generate a new tailored portfolio when the JD's required competencies, preferred qualifications, or submission instructions need a different project order, reduced noise, or role-specific evidence that the existing portfolio does not foreground.
+- Do not list JD-required technologies or duties as unsupported personal experience. If another verified experience demonstrates the same underlying competency, rewrite it around that competency and keep the evidence source clear.
+- Do not combine separate verified facts into a new technology label. For example, if Bedrock Agent Trace and API Gateway WebSocket are separately verified, do not write `WebSocket Trace`; write only verified units such as `Bedrock Agent Trace`, `API Gateway WebSocket`, or `progress/status UI`.
+- Any fact marked as draft, needs confirmation, limited, or uncertain in Notion/local snapshots must not be written as completed implementation. Downgrade it to the confirmed level such as reviewed, designed, PoC, learned, or exclude it.
+- Follow the `생각등대` writing guide: each strong bullet should be technically credible but readable, using a problem/reason/implementation/result structure. Avoid opaque internal shorthand and avoid writing only tool names.
+- Keep the writing natural and modest. Avoid AI-like declarative phrasing such as `증명하겠습니다`, `전환하는 개발자`, or `역량을 보유했습니다`. Prefer fact-based phrasing such as `구현했습니다`, `경험이 있습니다`, `연결해 봤습니다`, or `맡았습니다`.
+- Do not put defensive meta sections or phrases in submitted resumes/portfolios, such as `제외 기술`, `직접 근거가 약해`, or `보유 기술처럼 쓰지 않습니다`. Keep those judgments in the strategy document only; submitted artifacts should simply select verified experiences.
+- Keep reusable career facts in the Notion Developer page. Do not create or expand local markdown source files unless the user explicitly asks for a snapshot update.
 - In resumes, company work performed during employment must stay under the career section. Do not duplicate LG 공통업무 플랫폼, 프비티, or other employer work under the standalone project section.
 - When one employment entry contains multiple products, projects, or workstreams, split them inside the career entry with small subheadings instead of mixing all bullets in one flat list. Keep them under `경력`, not under the standalone project section.
 - For 디지엠유닛원, use only two employment project headings: `프비티` and `LG 공통업무 플랫폼`. Do not create `AI Native 워크플로우` as a standalone project or case; fold AI Native process evidence into the relevant actual project, usually `프비티`.
-- In resumes, the standalone project section is for non-employment work only, such as personal projects, education projects, research, or capstone work.
-- For the 디지엠유닛원 career role label, adapt the role to the JD: use `Frontend Engineer` for frontend JDs, and `Software Engineer` for fullstack, AI Native, AX, AI service, PI, or Builder-oriented JDs. This rule applies only to the 디지엠유닛원 employment entry. Keep 크래프톤 정글 Code Sync as `Frontend Developer` because it is a frontend education project.
+- In resumes, the standalone project section is for non-employment work only, such as personal projects, education final projects, research, or capstone work. Separate each project clearly by project name, period, role, tech stack, and problem-solution-result bullets. Do not merge multiple projects into one vague block.
+- Treat SKALA as education, like 크래프톤 정글. Do not create a standalone project named `SKALA 4기 실습`, and do not position ordinary SKALA practice as if it were professional project work.
+- Use SKALA only when it directly supports the JD, and usually under `교육/활동` with at most 1-2 bullets. Prefer technically useful evidence such as MSA, Spring Cloud, Kafka, JPA, PostgreSQL, Docker, query tuning, index/execution-plan analysis, transactions, concurrency, tests, and service decomposition.
+- Do not emphasize toy/service-theme descriptions from SKALA web-mini such as public trials, AI judges, voting, or relationship-dispute scenarios. If that work is relevant, translate it into concrete engineering evidence such as API design, STOMP/event flow, persistence, query behavior, testing, deployment, or client-server integration.
+- Treat 크래프톤 정글 as CS-focused education. It can support operating systems, networks, data structures/algorithms, and software fundamentals. Its final project Code Sync is also a strong frontend/project case, so include Code Sync for most IT roles unless the JD is clearly unrelated or another project is materially stronger.
+- Even when Code Sync is selected as a standalone project, keep 크래프톤 정글 itself as a separate education/activity entry when space allows. Limit it to 1-2 computer-science foundation bullets. Prefer Korean phrasing that starts with `주 100시간 이상 전산학을 학습하며`, then mention source-backed topics such as CSAPP, malloc, mmap, Tiny Web Server, and Pintos Thread/User Program/Virtual Memory/File System. Pintos is an educational operating-system assignment, so do not frame it as backend or infrastructure work.
+- Do not include 엘리스 or 스마일게이트 윈터데브 by default in resumes or portfolios. Consider them only when the user explicitly asks for them or when a specific JD requires evidence that cannot be covered by stronger verified experiences.
+- For the 디지엠유닛원 career role label, adapt the role to the JD: use `Frontend Engineer` for frontend JDs, and `Software Engineer` for fullstack, AI Native, AX, AI service, PI, or Builder-oriented JDs. This rule applies only to the 디지엠유닛원 employment entry. Keep 크래프톤 정글 Code Sync's project role as `Frontend Developer`, while describing the affiliation as a 크래프톤 정글 final project/education outcome.
 - Education and activity entries should appear only when they help the current JD. Keep each entry to at most two bullets; if the JD fit is weak, use a short subtitle only or omit the entry.
 - Awards should list actual awards only. Do not place "selected project", homepage listing, or internal showcase results under awards unless the source clearly treats them as an award.
+- Never include `크래프톤 정글 우수 프로젝트 선정` as an award, achievement, or other submitted item for any JD. Use Code Sync only as a project implementation experience.
+- Certifications and language scores should appear in submitted resumes only when the JD explicitly requires or prefers them. If the JD does not mention them, omit SQLD, OPIc, and similar credentials from the submitted artifact.
+- Awards, when included, must be chronological bullets with dates. Do not compress unrelated awards into one comma-separated row.
+- Keep army service as a short education/activity item when relevant or when preserving the user's standard profile. Use only verified facts such as signal soldier and peer counselor; do not expand it into telecom equipment development or embedded experience.
+- Include Artificial Society as a short-term internship in education/activity when space allows. Use only verified support scope: AI eye-tracking service data collection/preprocessing/dataset work, Data Augmentation, and EasyOCR quality improvement support.
 - Links should be attached to meaningful text, such as the project name, award name, official page label, or `[GitHub]`; do not append raw-looking links at sentence ends.
-- When the user corrects a fact, update the relevant local DB source as well as the generated company artifact unless the user explicitly asks for a one-off artifact-only edit.
+- When the user corrects a reusable fact, update the Notion source when explicitly asked; otherwise reflect it in the generated company artifact and report that the source still needs a Notion update.
 - Avoid duplicating the same source paragraph across multiple company artifacts without JD-specific rewriting.
 - Avoid resume bullets that only restate the intro, subtitle, or responsibility scope. A career bullet should have a concrete problem, meaningful action, and outcome/metric/domain impact. If an item only says that a feature was improved or feedback was reflected without a result, keep it in the intro/subtitle/context or omit it.
 - Prefer concrete problem names, actions, and verifiable outcomes over generic self-praise.
@@ -310,7 +345,7 @@ At the end, report:
 - tracker path updated
 - strategy markdown path
 - resume Typst/PDF paths
-- portfolio Typst/PDF paths
+- portfolio decision and Typst/PDF paths when created or reused
 - verification commands run
 - remaining blockers or missing source files
 
@@ -320,25 +355,36 @@ At the end, report:
 - Do not invent facts, numbers, roles, tools, or outcomes.
 - Do not write tailored results back into external document stores unless the user explicitly asks.
 - Do not create duplicate application tracker rows.
-- Do not create new base-source markdown files outside `db/이력서_원천.md`, `db/포트폴리오_원천.md`, and `db/지원회사_관리.md` unless the user explicitly asks.
+- Do not create new base-source markdown files. Use `db/지원회사_관리.md` for local application tracking only, and use local resume/portfolio markdown files only as fallback snapshots if they already exist.
 
 ## Validation
 
 Before claiming success, verify:
 
-- `db/이력서_원천.md` exists
-- `db/포트폴리오_원천.md` exists
+- the Notion Developer source page was accessed or the fallback/staleness limitation was explicitly reported
+- if fallback snapshots were used, `db/이력서_원천.md` and `db/포트폴리오_원천.md` exist and their limitation is reported
 - `db/지원회사_관리.md` exists
 - `assets/portfolio/` exists when portfolio images are referenced
 - the analyzer markdown exists or a provided `analysis_path` exists
 - the analyzer markdown has the required 12 sections
 - the tracker has no duplicate row for the same application key
 - the strategy markdown exists
-- both Typst files exist when generation was requested
-- both PDFs exist only if `typst compile` succeeded
+- the resume Typst file exists when generation was requested
+- the portfolio Typst file exists only when a tailored portfolio was requested or judged necessary
+- PDFs exist only if `typst compile` succeeded, or an existing PDF was deliberately reused and its path was verified
 - final resume/portfolio choices are traceable to analyzer sections 4-8
+- generated content does not contain coined or merged technical labels that are not explicitly source-backed, such as `WebSocket Trace`
+- any uncertain implementation scope is downgraded or excluded instead of being stated as completed work
 - generated resume does not duplicate employer work under the standalone project section
+- standalone projects are separated project-by-project instead of grouped under vague education labels
+- SKALA is not presented as a major standalone project unless the user explicitly approves; if used, it appears as education/activity or narrow technical evidence with at most 1-2 bullets
+- SKALA web-mini theme words such as public trial, AI judgment, voting, or relationship dispute are not foregrounded unless the JD unusually requires that domain
+- 크래프톤 정글 is treated as CS-focused education, and Code Sync is considered as a strong frontend project case for most IT applications
+- 엘리스 and 스마일게이트 윈터데브 are excluded by default
 - education/activity entries are JD-relevant and have at most two bullets each
-- any user fact corrections made during the turn were also reflected in the relevant `db/` source file
+- certifications/language scores are omitted unless explicitly required or preferred by the JD
+- submitted artifacts do not contain defensive meta sections such as `제외 기술`
+- awards are dated chronological bullets and do not include `크래프톤 정글 우수 프로젝트 선정`
+- any user fact corrections made during the turn were reflected in the company artifact, and any needed Notion source update was either performed after explicit request or reported as pending
 
 If any validation step fails, report the exact missing item and stop short of claiming the full workflow succeeded.
