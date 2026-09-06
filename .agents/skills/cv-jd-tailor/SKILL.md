@@ -131,6 +131,8 @@ Rules:
 - Treat `assets/portfolio/` as the shared source for reusable portfolio images such as architecture diagrams, component images, screenshots, diagrams, and logos.
 - Rewrite, reorder, and emphasize for JD fit.
 - Do not invent facts, numbers, responsibilities, tools, or outcomes missing from the Notion source or user corrections.
+- Never confuse what the candidate personally did with what a library, framework, or cloud service provides by default. Use `used`, `integrated`, `configured`, `connected to the UI`, `handled state`, `handled exceptions`, or `verified` when the candidate used an existing capability; reserve `implemented`, `designed`, or `improved` for source-backed code, UX, API contract, data flow, or validation work done by the candidate.
+- Do not present team-wide work, framework default behavior, managed-service built-in features, or library internals as personal implementation. When uncertain, write the narrower verified scope or keep the point in the strategy risk notes instead of the submitted artifact.
 - Do not invent motivation, intent, problem awareness, beliefs, or causal framing. Phrases like `~라는 문제의식으로` or `~하려는 의도로` require explicit source support from Notion or the user's latest correction.
 - Do not copy whole source sections verbatim unless the user explicitly asks for a base document.
 
@@ -296,15 +298,19 @@ Generation rules:
 - Prefer reusing `existing_portfolio_pdf` when its existing project order, evidence depth, and required-competency coverage are already stronger than a quick rewrite.
 - Generate a new tailored portfolio when the JD's required competencies, preferred qualifications, or submission instructions need a different project order, reduced noise, or role-specific evidence that the existing portfolio does not foreground.
 - Do not list JD-required technologies or duties as unsupported personal experience. If another verified experience demonstrates the same underlying competency, rewrite it around that competency and keep the evidence source clear.
+- Separate personal work from library/framework/service responsibility in every bullet. For example, Yjs synchronization, Monaco editing behavior, Bedrock Agent trace generation, API Gateway WebSocket transport, SQS queueing, and OpenSearch retrieval are platform/library capabilities; the resume should state the candidate's verified work such as integrating them, defining API/data contracts, rendering progress state, handling edge cases, improving UX, or validating behavior.
 - Do not combine separate verified facts into a new technology label. For example, if Bedrock Agent Trace and API Gateway WebSocket are separately verified, do not write `WebSocket Trace`; write only verified units such as `Bedrock Agent Trace`, `API Gateway WebSocket`, or `progress/status UI`.
 - Any fact marked as draft, needs confirmation, limited, or uncertain in Notion/local snapshots must not be written as completed implementation. Downgrade it to the confirmed level such as reviewed, designed, PoC, learned, or exclude it.
 - Follow the `생각등대` writing guide: each strong bullet should be technically credible but readable, using a problem/reason/implementation/result structure. Avoid opaque internal shorthand and avoid writing only tool names.
+- Write in natural Korean that a reviewer can understand on first read. Do not drop internal abbreviations, domain names, or technology names without context. Explain who used the product, what workflow it supported, and what screen/API/state/data flow the candidate worked on.
+- Keep the wording accessible without becoming technically shallow. A good bullet should show why the technology was needed, how the candidate integrated or configured it, and what exception handling, state management, performance, security, UX, or validation scope was personally handled.
 - Keep the writing natural and modest. Avoid AI-like declarative phrasing such as `증명하겠습니다`, `전환하는 개발자`, or `역량을 보유했습니다`. Prefer fact-based phrasing such as `구현했습니다`, `경험이 있습니다`, `연결해 봤습니다`, or `맡았습니다`.
 - Do not put defensive meta sections or phrases in submitted resumes/portfolios, such as `제외 기술`, `직접 근거가 약해`, or `보유 기술처럼 쓰지 않습니다`. Keep those judgments in the strategy document only; submitted artifacts should simply select verified experiences.
 - Keep reusable career facts in the Notion Developer page. Do not create or expand local markdown source files unless the user explicitly asks for a snapshot update.
 - In resumes, company work performed during employment must stay under the career section. Do not duplicate LG 공통업무 플랫폼, 프비티, or other employer work under the standalone project section.
 - When one employment entry contains multiple products, projects, or workstreams, split them inside the career entry with small subheadings instead of mixing all bullets in one flat list. Keep them under `경력`, not under the standalone project section.
 - For 디지엠유닛원, use only two employment project headings: `프비티` and `LG 공통업무 플랫폼`. Do not create `AI Native 워크플로우` as a standalone project or case; fold AI Native process evidence into the relevant actual project, usually `프비티`.
+- For every career and standalone project entry, place the tech stack directly under the title, then add a similarly styled smaller/lighter one-sentence description explaining what the product/project is. Readers should understand CPPM, 프비티, Code Sync, or any other name without already knowing the internal context.
 - In resumes, the standalone project section is for non-employment work only, such as personal projects, education final projects, research, or capstone work. Separate each project clearly by project name, period, role, tech stack, and problem-solution-result bullets. Do not merge multiple projects into one vague block.
 - Treat SKALA as education, like 크래프톤 정글. Do not create a standalone project named `SKALA 4기 실습`, and do not position ordinary SKALA practice as if it were professional project work.
 - Use SKALA only when it directly supports the JD, and usually under `교육/활동` with at most 1-2 bullets. Prefer technically useful evidence such as MSA, Spring Cloud, Kafka, JPA, PostgreSQL, Docker, query tuning, index/execution-plan analysis, transactions, concurrency, tests, and service decomposition.
@@ -373,6 +379,7 @@ Before claiming success, verify:
 - the portfolio Typst file exists only when a tailored portfolio was requested or judged necessary
 - PDFs exist only if `typst compile` succeeded, or an existing PDF was deliberately reused and its path was verified
 - final resume/portfolio choices are traceable to analyzer sections 4-8
+- submitted bullets distinguish candidate-authored work from library/framework/cloud-service capabilities
 - generated content does not contain coined or merged technical labels that are not explicitly source-backed, such as `WebSocket Trace`
 - any uncertain implementation scope is downgraded or excluded instead of being stated as completed work
 - generated resume does not duplicate employer work under the standalone project section
