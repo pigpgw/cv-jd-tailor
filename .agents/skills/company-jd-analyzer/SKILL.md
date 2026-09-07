@@ -33,11 +33,11 @@ Default output root:
 
 Start from the JD, identify the company, gather hiring-relevant recent signals, infer what kind of person the company likely wants, and write exactly one final Korean markdown file:
 
-`workflow/지원전/{company_name}/{company_name}_채용분석.md`
+`workflow/지원전/{application_dir}/{application_dir}_채용분석.md`
 
 If the company cannot be identified with confidence, write:
 
-`workflow/지원전/미확인회사/미확인회사_채용분석.md`
+`workflow/지원전/미확인회사_미확인JD/미확인회사_미확인JD_채용분석.md`
 
 Do not create extra files unless the user explicitly asks.
 
@@ -110,7 +110,7 @@ Confidence guidance:
 - Medium confidence: the company is strongly suggested but not directly confirmed by an official source
 - Low confidence: multiple companies could plausibly match
 
-If confidence is below high, say so clearly and weaken the wording. If identification is too uncertain, use `workflow/지원전/미확인회사/미확인회사_채용분석.md`.
+If confidence is below high, say so clearly and weaken the wording. If identification is too uncertain, use `workflow/지원전/미확인회사_미확인JD/미확인회사_미확인JD_채용분석.md`.
 
 ### 3. Research Recent Company Context
 
@@ -152,8 +152,8 @@ If the user provided a resume or portfolio, use it to prioritize and tailor the 
 
 ### 6. Write the Final Markdown File
 
-- Create `workflow/지원전/{company_name}` if needed.
-- Write exactly one Korean markdown file in that company folder.
+- Create `workflow/지원전/{application_dir}` if needed. Use `{회사명}_{JD식별자}`; do not use a random hash or create a second folder for the same JD.
+- Write exactly one Korean markdown file in that application folder.
 - Keep the writing concise, analytical, and hiring-focused.
 
 ## Required Markdown Structure
