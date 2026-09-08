@@ -74,9 +74,15 @@ When the workflow succeeds, produce or update:
 
 - `workflow/지원전/<application_dir>/<application_dir>_채용분석.md`
 - `workflow/지원전/<application_dir>/<application_dir>_지원전략.md`
-- `workflow/지원전/<application_dir>/<application_dir>_이력서_박건우.typ`
+- `workflow/지원전/<application_dir>/박건우_이력서.typ`
 - `workflow/지원전/<application_dir>/<application_dir>_포트폴리오_후보.md` only when the JD explicitly asks for AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio
 - matching resume PDF beside the Typst file when Typst rendering is available
+
+Resume filename rule:
+
+- `application_dir` is the management boundary for company/JD identity; do not repeat that identity in the submit-ready resume filename.
+- Always name the submit-ready resume files `박건우_이력서.typ` and `박건우_이력서.pdf` inside the company-specific folder.
+- Keep analysis and strategy filenames company-specific for local traceability, but never generate or report a resume file named like `<application_dir>_이력서_박건우.pdf` as the final submission file.
 
 Use `workflow/지원후/<application_dir>/` as the immutable snapshot of files submitted at that time. Never edit, regenerate, overwrite, or delete anything under `workflow/지원후/` after submission, including when the source DB, skill rules, or `workflow/지원전/` are corrected. The existence of a submitted application folder is the application-status signal; do not create or update a separate application-tracker document. All content corrections belong in the source DB, shared instructions, or `workflow/지원전/`. A later application must create a new pre-submission artifact rather than changing the archived copy.
 
@@ -173,8 +179,13 @@ Required alignment:
 - If a source experience is strong in Notion but weak for the JD analysis, downplay or omit it instead of forcing it into the final document.
 - If the analysis has `[확인필요]` or weak evidence, do not turn it into a confident resume claim.
 - If the analysis and source facts conflict, stop and resolve the conflict against Notion and the user's latest correction before generating final Typst.
-- Do not reduce the JD to a handful of generic keywords. Split every explicit responsibility, qualification, and preferred qualification into an itemized coverage list and label each item `direct evidence`, `adjacent evidence`, or `no evidence` before writing the resume.
-- Every qualification or preferred qualification with direct evidence must appear in a natural resume bullet using the JD's wording where truthful. Adjacent evidence must be clearly narrowed to the verified contact point. No-evidence items must be excluded from submitted claims and recorded only as a strategy risk.
+- Do not reduce the JD to a handful of generic keywords. Split every concrete JD phrase into the `JD 원문 원자 체크리스트` before writing the resume.
+- Every checklist row with direct evidence must appear in a natural resume bullet using the JD's wording where truthful. Adjacent evidence must be clearly narrowed to the verified contact point. No-evidence items must be excluded from submitted claims and recorded only as a strategy risk.
+- Treat the full JD text as the contract, not the analyzer summary. Before writing or updating the resume, create a `JD 원문 원자 체크리스트` in the strategy document that preserves every concrete phrase from responsibilities, qualifications, preferred qualifications, submission notes, work conditions that affect fit, and company facts that matter to motivation. Each row must end in exactly one state: `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외`.
+- For every `직접 반영` or `축소 반영` row, record the exact final resume section and the resume wording that handles it. If there is no resume location, the artifact is not ready.
+- For every `전략 리스크` or `제출 제외` row, record why it is not used, such as `직접 근거 없음`, `지원서에 쓰면 과장`, `제출 문서 우선순위 낮음`, or `면접 대비로만 보관`.
+- If the user later pastes additional JD text, translated JD text, official job-page content, application-form instructions, or asks whether all content is included, rerun this full checklist against the new text. Do not answer from the existing analysis alone, and do not claim completion until the strategy and resume have been updated or each omitted item has a recorded reason.
+- Reproduce omissions before fixing when the user reports missing JD content: compare the current resume and strategy against the original JD phrases, write the missing rows and root cause into an application-folder note named `<application_dir>_누락재현_원인분석.md`, then patch the skill or AGENTS rule that allowed the miss. This note is allowed when the user explicitly asks for root-cause recording.
 
 ### 4. Write Strategy Markdown
 
@@ -193,11 +204,11 @@ Use these top-level sections:
 Inside `# JD 매칭 요약`, include:
 
 - JD 핵심 키워드와 원천 경험 매핑 테이블
+- `JD 원문 원자 체크리스트` table with one row per concrete responsibility, qualification, preferred qualification, submission note, and company/motivation fact that should affect tailoring
 - `[명시]`, `[최근근거]`, `[추정]`, `[확인필요]` 라벨 유지
 - 직접 매칭, 축소 반영, 미커버 리스크 구분
 - why each selected resume/portfolio item belongs in the final output
 - which attractive DB items were intentionally excluded because the analysis does not support them strongly enough
-- a requirement coverage table with one row per explicit responsibility, qualification, and preferred qualification, including evidence level and the exact resume/strategy location where it is handled
 
 Inside `# 맞춤 이력서`, include:
 
@@ -210,7 +221,7 @@ Inside `# 맞춤 이력서`, include:
 
 Inside `# 포트폴리오 제출 메모`, record whether the JD asks for a general portfolio or explicitly asks for AI-usage evidence. For a general portfolio request, point to the user's separately managed existing PDF and do not generate a company-specific general portfolio. Only when the JD explicitly asks for AI-usage evidence, or the user explicitly requests it in the current task, create a tailored AI-usage portfolio candidate list and PDF/Typst covering verified AI workflows, prompts, Skills, Agent MD, human review, verification, and harness improvement.
 
-Inside `# 제출 파일 메모`, include the final resume and portfolio paths and whether the company folder is pre-submission or submitted.
+Inside `# 제출 파일 메모`, include the final resume and portfolio paths and whether the company folder is pre-submission or submitted. The final resume paths must use the fixed submit-ready filenames `workflow/지원전/<application_dir>/박건우_이력서.typ` and, when compiled, `workflow/지원전/<application_dir>/박건우_이력서.pdf`.
 
 Inside `# 조정 메모`, include:
 
@@ -222,7 +233,7 @@ Inside `# 조정 메모`, include:
 
 Create or update:
 
-- `workflow/지원전/<application_dir>/<application_dir>_이력서_박건우.typ`
+- `workflow/지원전/<application_dir>/박건우_이력서.typ`
 - `workflow/지원전/<application_dir>/<application_dir>_포트폴리오_박건우.typ` only when the JD explicitly requires AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio; never generate a general tailored portfolio by default
 
 Use existing templates or nearby output patterns only when they exist in the repository. If templates are unavailable, create Typst files with conservative structure and clearly report that the base template was unavailable.
@@ -238,13 +249,14 @@ Generation rules:
 
 - Keep company-specific tailoring in the company folder.
 - Always generate a tailored resume when the application is still open and the company/role are identified.
-- Before finalizing the resume, run a requirement-coverage pass against every explicit JD responsibility, qualification, and preferred qualification. Do not declare the application artifact ready while a directly supported requirement is missing from the resume.
+- Before finalizing the resume, run a coverage pass against every row in the `JD 원문 원자 체크리스트`. Search for the submitted resume's corresponding wording and verify semantic coverage manually for paraphrases. Important exact phrases such as product names, role-specific evaluation words, submission-form instructions, and company-scale facts must either appear in the resume/strategy or have an explicit omission reason. Do not declare the artifact ready while a directly supported checklist row is missing from the resume.
 - After generation, run a separate artifact-integrity pass. Compare the final resume against the strategy and analysis: the selected core-capability labels and ordering must match the strategy exactly, every retained project/activity must have a JD-fit reason, and no inherited item from a generic/base resume may remain unless the strategy explicitly retains it. Treat any mismatch as a failed generation requiring correction, not as a cosmetic review note.
 - The final pass must also check for stale or contradictory claims by searching the generated source for excluded activities, unsupported JD keywords, duplicate work/project descriptions, and strategy items that do not appear in the artifact. Report the exact mismatch before claiming readiness.
+- If any exact JD phrase is intentionally not used because it lacks evidence, keep it in the strategy risk table; do not silently drop it.
 - Do not generate a tailored general portfolio PDF, Typst, or candidate list. When a JD asks for a general portfolio, provide the user's separately managed existing `existing_portfolio_pdf` path for submission. Create an AI-usage candidate list and AI-usage portfolio artifact only when the JD explicitly asks for AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio in the current task.
 - The portfolio candidate Markdown must rank 3-6 cases by JD fit. For every case, write: `JD requirement -> verified experience -> problem/constraint -> architecture/data flow -> code or prompt/tool detail -> result/validation -> scope caveat`. Use concrete code-level details when verified, such as API contracts, queue/worker boundaries, event/state handling, retries, pagination, sanitization, prompt instructions, agent routing, approval gates, or test commands. Do not turn the candidate list into a polished portfolio or invent missing implementation details.
 - Do not list JD-required technologies or duties as unsupported personal experience. If another verified experience demonstrates the same underlying competency, rewrite it around that competency and keep the evidence source clear.
-- Extract the exact evaluation words from every JD responsibility, qualification, and preferred qualification. Build a mapping of `JD wording -> verified source fact -> candidate-owned action -> resume location`. For every item with direct evidence, reuse the JD wording naturally in a bullet or core-capability statement; for adjacent evidence, use a narrower truthful equivalent; for no evidence, exclude the term rather than keyword-stuffing.
+- Extract the exact evaluation words from every JD responsibility, qualification, preferred qualification, and application instruction into the checklist. Build a mapping of `JD wording -> verified source fact -> candidate-owned action -> resume location or omission reason`. For every item with direct evidence, reuse the JD wording naturally in a bullet or core-capability statement; for adjacent evidence, use a narrower truthful equivalent; for no evidence, exclude the term rather than keyword-stuffing.
 - Never hard-code a universal project priority. Recompute the project set for each JD from the evidence records: select one or more projects only when each contributes a distinct or stronger match, prefer the smallest non-redundant set that covers the important requirements, and record the chosen projects and order only in that company's strategy file. A new project must become eligible through the same evidence schema without changing this skill.
 - When repository evidence is needed, inspect the full history and candidate-authored changes before writing portfolio or resume claims. Store reusable code evidence as repository/file/function/commit references and concise implementation summaries; do not copy whole repositories or attribute teammate-owned features to the candidate.
 - Separate personal work from library/framework/service responsibility in every bullet. For example, Yjs synchronization, Monaco editing behavior, Bedrock Agent trace generation, Amazon API Gateway WebSocket APIs, SQS queueing, and OpenSearch retrieval are platform/library or managed-service capabilities; the resume should state the candidate's verified work such as integrating them, defining API/data contracts, rendering progress state, using `PostToConnection`, handling edge cases, improving UX, or validating behavior.
@@ -372,7 +384,7 @@ Generation rules:
 
 ### 7. Render PDFs When Possible
 
-Run `typst compile` for the generated resume Typst file and, only when an AI-usage portfolio Typst file was requested and generated, compile that portfolio file as well. Write each resulting PDF beside its source Typst file.
+Run `typst compile` for the generated resume Typst file and write the PDF beside it as `박건우_이력서.pdf`. Only when an AI-usage portfolio Typst file was requested and generated, compile that portfolio file as well.
 
 If Typst or a template dependency is unavailable:
 
@@ -412,10 +424,13 @@ Before claiming success, verify:
 - the submitted snapshot exists under `workflow/지원후/` when the user says the application was submitted
 - the strategy markdown exists
 - the resume Typst file exists when generation was requested
+- the final resume Typst/PDF filenames are exactly `박건우_이력서.typ` and `박건우_이력서.pdf` inside the application folder, not company-prefixed names
 - no general company-specific portfolio Typst/PDF was generated; AI-usage portfolio Typst/PDF exists only when the JD explicitly asks for AI-usage evidence or the user explicitly requested it
 - when an AI-usage portfolio is requested, its candidates are ranked and each candidate contains architecture/code/AI-usage/result/scope fields
 - PDFs exist only if `typst compile` succeeded, or an existing PDF was deliberately reused and its path was verified
 - final resume/portfolio choices are traceable to analyzer sections 4-8
+- the strategy includes a `JD 원문 원자 체크리스트`, and every row is marked `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외` with a resume location or omission reason
+- if the user supplied additional JD text after initial generation, the checklist and resume were rerun against the latest supplied text
 - submitted bullets distinguish candidate-authored work from library/framework/cloud-service capabilities
 - generated content does not contain coined or merged technical labels that are not explicitly source-backed, such as `WebSocket Trace`
 - any uncertain implementation scope is downgraded or excluded instead of being stated as completed work
