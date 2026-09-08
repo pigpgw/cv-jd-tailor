@@ -16,13 +16,13 @@
   lang: "ko",
   size: 9.7pt,
   fill: luma(15%),
-  font: ("Pretendard", "Apple SD Gothic Neo", "NanumGothic", "Noto Sans CJK KR"),
+  font: ("Apple SD Gothic Neo", "Arial"),
   fallback: true,
 )
 
 #set par(
   justify: false,
-  leading: 0.88em,
+  leading: 0.95em,
 )
 
 #set block(breakable: true)
@@ -31,7 +31,7 @@
   marker: [•],
   indent: 0.1em,
   body-indent: 0.48em,
-  spacing: 0.78em,
+  spacing: 0.6em,
 )
 
 #show link: set text(fill: accent)
