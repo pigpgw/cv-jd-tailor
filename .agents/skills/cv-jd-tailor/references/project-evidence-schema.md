@@ -52,7 +52,7 @@ Project selection is recomputed for every JD. Never encode a universal project p
 ## Final audit
 
 - Every selected project appears in the final artifact or has an explicit reason for exclusion.
-- Every directly evidenced JD requirement is represented in a truthful bullet, core capability, or required form answer.
-- Every core capability maps back to at least one evidence record.
+- Every directly evidenced JD requirement is represented in a truthful bullet, `핵심 기술 근거` item, or required form answer.
+- Every `핵심 기술 근거` item maps back to at least one evidence record and follows `problem/constraint -> technical decision/implementation -> result/validation`.
 - No teammate-owned code, unsupported keyword, duplicate story, stale activity, or private detail is exposed.
 - The strategy, resume, portfolio candidate list, and source evidence agree on project names, roles, scope, and results.
