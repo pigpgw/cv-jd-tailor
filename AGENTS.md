@@ -34,7 +34,7 @@
 - `workflow/지원후/`는 제출 당시의 불변 보관본이다. 지원 완료 후 파일을 수정·재생성·덮어쓰기·삭제하지 않는다.
 - 수정이 필요하면 Notion 원천, 공용 지침, 또는 `workflow/지원전/`에 반영하고 새 지원 시 새 산출물을 만든다.
 - 반복 사용 가능한 사실은 회사 폴더에 복제하지 않고 Notion 또는 `db/`에 둔다.
-- 공용 포트폴리오 자산은 `assets/portfolio/`에 두며 회사별로 복사하지 않는다.
+- 현재 공용 포트폴리오 산출물은 `assets/portfolio/`, 경험별 원천은 `assets/code-sync/`와 `assets/dgm-unitone/`, 공통 원천은 `assets/common/`에 둔다. 회사별로 원천을 복사하지 않는다.
 - GitHub에는 공용 지침, 스킬, 공개 템플릿만 올린다. `db/`, `workflow/`, `assets/`는 로컬 전용이다.
 - Typst 파일과 PDF는 같은 지원전 폴더에 둔다. PDF는 컴파일 성공을 확인한 경우에만 존재한다고 보고한다.
 - 회사명과 JD 식별자는 지원 폴더명과 분석·전략 문서명에만 둔다. 바로 제출하는 이력서 파일명은 항상 `박건우_이력서.typ`와 `박건우_이력서.pdf`로 두고, 회사명·공고 ID·`지원전` 같은 내부 관리 정보를 파일명에 넣지 않는다.
@@ -90,8 +90,7 @@
 
 ## Local Career Workspace Layout
 
-- `assets/portfolio/typst/`: 공용 포트폴리오 Typst 원본, 원본 이미지 8개, 글꼴, 컴파일된 PDF.
-- `assets/portfolio/original/`: 이전 Figma 포트폴리오 PDF 원본.
+- `assets/portfolio/`: 공용 포트폴리오 Typst 원본, 원본 이미지 8개, 글꼴, 컴파일된 PDF.
 - `assets/portfolio/architecture/`: 편집 가능한 아키텍처 도표와 관련 소스.
 - `assets/portfolio/exports/`: typst.app 업로드용 원본 ZIP. 수정 후 ZIP을 다시 생성한다.
 - `assets/resume/original/`: 기존 공용 이력서 PDF 보관본.
@@ -99,3 +98,14 @@
 - `assets/`와 `workflow/`는 개인정보를 포함하는 로컬 전용 경로다.
 - `workflow/지원전/`, `workflow/지원후/`의 기존 회사별 구조와 보관 경계는 유지한다.
 - 바탕화면 `이력서`에는 이동 안내 파일만 남아 있다. 실제 작업 기준 폴더는 `cv-jd-tailor`다.
+
+
+## Figma Evidence And Role Variants
+
+- `assets/code-sync/`: 크래프톤 정글 최종 팀 프로젝트 원천. 디지엠유닛원 재직 경력으로 합치지 않는다.
+- `assets/dgm-unitone/`: 재직 중 프비티·CPPM 자료. 프로젝트별 맥락과 개인 담당을 구분한다.
+- `assets/common/`: 공통 아이콘, 혼합 이력서 초안, 전체 Figma 원본 JSON·캔버스·수집 목록.
+- Figma 원문은 표현·화면·도식의 보존 자료이며, 최신 사실·기간·수치 판단에서 Notion보다 우선하지 않는다.
+- 레이어명이 mock-body인 채팅 검색 이미지는 화면 예시로 표시하고 실제 서비스 검증 스크린샷으로 단정하지 않는다.
+- 직무별 문서는 공통 원천을 참조하고, JD마다 프로젝트·순서·강조를 다시 선택한다. `assets/직무별_구성기준.md`는 후보군이며 고정 우선순위가 아니다.
+- 기존 `workflow/지원후/` 제출 보관본과 원문 증빙은 직무별 변형 생성 과정에서 수정하지 않는다.
