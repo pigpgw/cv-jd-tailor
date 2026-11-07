@@ -1,62 +1,36 @@
 ---
 name: cv-jd-tailor
-description: Generate company-tailored Korean resume and portfolio application artifacts from a JD using the user's Notion Developer page as the primary resume/portfolio source. Read Notion through Composio first, then write JD-specific artifacts from verified source facts.
+description: Generate evidence-grounded, JD-specific Korean resumes and optional application artifacts from a live job posting and the user's Notion Developer record. Use when a user wants a tailored resume, portfolio selection, or application draft. Exclude generic career advice, unsupported ATS scoring, and final submission unless separately requested.
 ---
 
 # CV JD Tailor
 
-## Purpose
+## Outcome
 
-Turn one JD into local application artifacts while keeping reusable source facts grounded in the user's Notion Developer page and using the pre-submission/submitted folder boundary defined by the project instructions.
+Turn one live JD into a reviewable application package whose important claims are traceable to the user's verified career record. Optimize for role fit and recruiter readability without changing ownership, dates, metrics, causal links, or completion state.
 
-The JD is provided at invocation time. Read the JD through a suitable read-only MCP tool first, with browser reading only as its fallback. Read base resume/portfolio facts from the user's Notion Developer page through the connected Notion account in Composio.
+`AGENTS.md` controls source precedence, archive boundaries, paths, safety, and repository-wide validation. This skill controls JD decomposition, evidence selection, composition, and tailoring QA.
 
-## Boundary With AGENTS.md
+## Load Only What the Current Phase Needs
 
-- `AGENTS.md` owns repository-wide source precedence, safety boundaries, archive immutability, file placement, and minimum validation.
-- This skill owns only JD analysis, evidence selection, resume/portfolio composition, application-specific artifact generation, and tailoring QA. Do not duplicate or redefine repository-wide policy here.
-- Treat the user's Notion `박건우 | Developer` source and its linked experience records as the factual career record. Do not cast doubt on a recorded experience merely because a JD-tailored draft has not surfaced it yet. The tailoring decision is whether and how prominently that fact supports this JD; any scope dispute must point to a specific conflict, missing ownership detail, or the user's latest correction.
-- Before generating, apply the evidence gate: map every selected claim to Notion, a user's latest correction, or verified code/README/execution evidence. A user request cannot turn an unsupported fact, metric, role, or causal link into a submitted claim; narrow, label, or exclude it and record the reason in strategy notes.
-- Treat every noun phrase that implies a product workflow, business operation, user group, or technical ownership as a factual claim. A product's domain, database table/schema, API surface, or general project description does not prove that the candidate implemented or operated that workflow. Require a source passage that names the candidate's action on that feature; otherwise omit the phrase. A user's latest correction that they did not perform a task overrides earlier summaries and must be recorded under `## 사실·역할 경계` and mechanically checked against final Typst/PDF text.
-- After generating, run a contradiction and leakage check: compare selected projects, roles, dates, metrics, technologies, and outcomes against the source, and verify that no rejected or unverified claim entered the final artifact. Do not report completion until this check passes.
-- Never write a claim that the source cannot support, even when it sounds plausible or would make the resume stronger. Remove true-but-unnecessary content unless it directly proves a responsibility, qualification, preferred qualification, or an application-required fact. AI-tool workflow is not a standing exception; include it only when the JD explicitly values that practice and the source proves the candidate's actual workflow and ownership. Do not fill space with generic self-praise, tool inventories, biography, or unrelated work history.
-- Apply the storytelling rule to every tailored experience sentence, not only one featured bullet: `context/user problem or constraint -> candidate-owned reasoning/decision -> technical action or collaboration -> verified result or concrete deliverable`. Use only source-backed context and causality; when a metric is unavailable, end with a verifiable user-facing change, handled edge case, or completed artifact rather than inventing impact.
-- Before drafting, run the `distinctive-strength pass` in `references/resume-bullet-quality.md`: search the complete relevant source records for role-specific user/product outcomes and non-obvious implementation depth (lifecycle, state, ordering, failure handling, performance, or other evidenced constraints). Map `JD need -> source evidence -> personal mechanism -> verified result -> resume location`, rank by direct role fit, technical depth/ownership, and outcome strength, and put the strongest role-defining proofs on page one. A generic stack match is not a differentiator; do not invent novelty or imply causality the source does not establish. Make the first-page advantage and detailed implementation mutually reinforcing rather than repetitive.
+- Read [references/tailoring-pipeline.md](references/tailoring-pipeline.md) at the start of every tailoring task.
+- Read [references/candidate-record-rules.md](references/candidate-record-rules.md) before selecting or wording the user's experiences.
+- Read [references/resume-bullet-quality.md](references/resume-bullet-quality.md) before drafting or revising resume bullets.
+- Read [references/project-evidence-schema.md](references/project-evidence-schema.md) when documenting a new project, inspecting a repository, or rebuilding project evidence.
+- Read [references/review-protocol.md](references/review-protocol.md) after the first rendered draft.
+- Read [references/submission-ledger-harness.md](references/submission-ledger-harness.md) only when updating application records or processing multiple postings.
 
-## Source of Truth
+Do not load every reference speculatively. Keep the active context limited to the current phase and selected evidence.
 
-For the reusable project evidence schema and code-review procedure, read [references/project-evidence-schema.md](references/project-evidence-schema.md) whenever a project is being newly documented, a repository is being inspected, or project selection is being redesigned.
+## Required Inputs
 
-For JD-to-evidence mapping, bullet selection/count, bullet structure, and quality review, read [references/resume-bullet-quality.md](references/resume-bullet-quality.md) before drafting or revising resume bullets. This is the controlling rubric when a draft feels too generic, too thin, or mismatched to the target role.
-
-Use the source precedence and canonical paths defined in `AGENTS.md`. This skill adds only the retrieval and evidence-selection procedure below; it does not redefine repository-wide source or archive policy.
-
-### Source retrieval routes and token budget
-
-#### JD / public job-posting route
-
-- Read the supplied JD URL with the smallest suitable read-only MCP tool first. Prefer a direct page/Markdown extraction tool when one is available; do not guess an unavailable tool name.
-- Validate that the returned text includes responsibilities, qualifications, preferences, submission instructions, and application conditions. If the MCP result is inaccessible, empty, truncated, or misses page content rendered only in the browser, read the supplied URL through browser automation.
-- Use browser reading only for the JD fallback. Preserve the full JD text long enough to create the `JD 원문 원자 체크리스트`; do not use Composio as the JD reader merely because the URL is a public Notion page.
-
-#### Personal Notion Developer source route
-
-- Read only the user's Notion Developer source through Composio. Discover the exact Notion tools through `COMPOSIO_SEARCH_TOOLS`, confirm that the `notion` connection is active, then use the smallest suitable read operation.
-- When the Developer page ID is known, call `NOTION_GET_PAGE_MARKDOWN` first. It returns readable content in one request and avoids browser accessibility/screenshot tokens and recursive block traversal.
-- Fetch metadata or recursive blocks only when the Markdown result is empty, truncated, contains unknown-block placeholders, or a needed linked child page/table is absent. Do not prefetch an entire workspace, database, media, or block tree.
-- Build a child-page coverage manifest before selecting evidence: identify every linked child page, project page, or database record referenced by the Developer page that could support a JD-matched experience. Read the narrow linked source for every experience retained in the tailored resume, even when the parent Markdown has a short summary. For an unselected child page, record the JD-mismatch reason rather than treating its parent-page summary as complete evidence. This is a targeted child-page pass, not a recursive workspace dump.
-- If Composio reports no active Notion connection or the Developer page is inaccessible, report that directly. Do not fall back to browser automation for this personal source; the local snapshots remain fallback only under the existing source-precedence rule and must be reported as stale-source fallback.
-- Keep only the facts needed for the current JD in working context: extract a compact evidence table (`project/role/period/verified scope/metric or deliverable/JD match`) from the retrieved Markdown, then use that table for composition. For every time, count, rate, or Before→After metric, add a measurement card: `measured request or workflow / baseline / changed implementation details / after / measurement scope or caveat`. Do not paste or retain the full Notion page in generated artifacts.
-
-## Inputs
-
-Provide at least one JD input:
+At least one JD input:
 
 - `jd_url`
 - `jd_text`
 - `jd_file`
 
-Optional inputs:
+Optional:
 
 - `application_dir`
 - `analysis_path`
@@ -68,476 +42,170 @@ Optional inputs:
 - `output_root`
 - `archive_root`
 
-Default values:
+Defaults:
 
-- `notion_source_url`: `https://confused-dietician-c17.notion.site/Developer-3c77caa087bd80ff9d73f63aeeebb4d7?pvs=74`
-- `resume_snapshot_path`: `db/이력서_원천.md`
-- `portfolio_snapshot_path`: `db/포트폴리오_원천.md`
-- `existing_portfolio_pdf`: `박건우_포트폴리오.pdf` when available from the current workspace or a user-supplied path
-- `output_root`: `workflow/지원전`
-- `archive_root`: `workflow/지원후`
+- Notion source: the canonical Developer page in `AGENTS.md`
+- Local fallback: `db/이력서_원천.md`, `db/포트폴리오_원천.md`
+- Output root: `workflow/지원전`
+- Submitted archive: `workflow/지원후`
 
-Preferred invocation style:
+If company, role, or posting ID is ambiguous, resolve them from the live posting before creating a folder.
 
-- `[$cv-jd-tailor] <JD_URL> application_dir=<회사명>_<JD식별자>`
+## Source Contract
 
-## Artifacts
+1. Read the complete JD from its live public source when possible. A search snippet is discovery evidence, not a complete JD.
+2. Confirm posting identity and current status before tailoring. If the posting is closed, duplicated, inaccessible, or requires an unsupported eligibility condition, stop and report it.
+3. Read the Notion Developer page through Composio first. For each selected experience, read the narrow child source that proves its scope, ownership, result, and dates.
+4. Use local snapshots only when Notion is unavailable, and label the run as fallback-based.
+5. A previous application draft is expression reference only. Never use it as the factual source for dates, roles, metrics, or technologies.
+6. A platform or library capability is not proof that the candidate implemented it. Require a candidate-owned action in the source.
 
-When the workflow succeeds, produce or update:
+### Evidence states
 
-- `workflow/지원전/<application_dir>/<application_dir>_채용분석.md`
-- `workflow/지원전/<application_dir>/<application_dir>_지원전략.md`
-- `workflow/지원전/<application_dir>/박건우_이력서.typ`
-- `workflow/지원전/<application_dir>/박건우_자기소개서.typ` and matching PDF only when the JD requests a self-introduction or the user supplies/requests one
-- `workflow/지원전/<application_dir>/<application_dir>_포트폴리오_후보.md` only when the JD explicitly asks for AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio
-- matching resume PDF beside the Typst file when Typst rendering is available
-- matching self-introduction PDF beside its Typst source when a self-introduction is required and Typst rendering is available
+Label each JD requirement and draft claim with one state:
 
-### Resume and attachment are separate artifacts
+- `직접 근거`: the source explicitly proves the candidate's relevant action or result.
+- `인접 근거`: the source proves a related capability but not the exact requirement.
+- `근거 부족`: no source supports the claim; exclude it from submitted text.
+- `확인 필요`: a likely fact is incomplete or conflicting; do not promote it until resolved.
 
-- Tailor `박건우_이력서.typ/pdf` independently for each company and posting. Never upload one unchanged resume to every posting merely because the portfolio is shared.
-- The existing `assets/portfolio/박건우_포트폴리오.pdf` is the common portfolio attachment. Reuse it when the posting requests or accepts a portfolio; do not regenerate or rename it as a company-specific portfolio unless the user explicitly requests a genuinely tailored portfolio and the source evidence supports it.
-- Keep the submission manifest clear: resume = posting-specific resume PDF; portfolio = existing shared portfolio PDF; self-introduction = a separate PDF only when the posting requests it or the user supplied one. Do not substitute the portfolio for the resume or treat a portfolio upload as resume completion.
-- For a batch of postings, process every active posting folder independently from its own complete JD. Preserve the posting inventory/order, count expected and completed folders, and do not carry one posting's wording, evidence selection, date, or conclusions into another without rechecking its JD and evidence.
+Keep eligibility separate from evidence strength:
 
-### Batch regeneration
+- `충족`
+- `미충족`
+- `확인 필요`
+- `해당 없음`
 
-When asked to revise this skill and regenerate all pre-submission packages:
+Do not invent ATS percentages, pass probabilities, or pseudo-precise match scores. If the user requests a fit threshold, calculate it only from explicit JD atoms and show the numerator, denominator, exclusions, and evidence state.
 
-1. Read the repo guide, this skill, the supplied posting inventory, and each active posting's complete source text. Exclude only folders explicitly marked submitted or closed; never edit `workflow/지원후/`.
-2. Inventory every required artifact per posting (analysis, strategy/checklist, resume Typst/PDF, requested self-introduction Typst/PDF, and shared portfolio attachment reference). Record missing inputs and do not silently skip a posting.
-3. Re-read the Notion Developer page and the narrow linked source for every retained experience. Treat prior support-preparation files as wording references only, not facts. Rebuild each posting from its JD and current verified evidence.
-4. Preserve all concrete JD phrases as atomic checklist rows. Map every supported qualification to the exact final resume wording/location; mark unsupported requirements as risk/excluded with a reason. Align the analysis sections 4–8, strategy, first-page evidence, and detailed bullets.
-5. Regenerate requested self-introductions from that posting's JD and verified candidate evidence. Remove invented customer interviews, operational scale, product deployment, test/evaluation systems, causal claims, personal traits, or future promises. Do not use another project's metric to strengthen a separate company experience.
-6. Recompile every requested PDF, extract its text, scan Typst and PDF text for Japanese kana, replacement characters, and mojibake, then render and visually inspect every page. Report exact expected/completed counts and any source limitation; a green mechanical validator is not semantic approval.
-7. Before external upload, provide the exact posting-specific resume path, shared portfolio path, and optional self-introduction path. External submission remains a separate user-confirmed action.
+## Output Contract
 
-Use the submit-ready filenames and immutable `workflow/지원후/` boundary defined in `AGENTS.md`.
+For `workflow/지원전/{회사명}_{JD식별자}/`, produce only artifacts required by the posting or user:
 
-### Submission ledger and duplicate-application guard
+- `{회사명}_{JD식별자}_채용분석.md`
+- `{회사명}_{JD식별자}_지원전략.md`
+- `박건우_이력서.typ`
+- `박건우_이력서.pdf` only after successful compilation
+- self-introduction answers only when the posting requires them or the user requests them
+- portfolio variants only when the JD or user requires them
 
-Before any form work and after every verified submission, follow [references/submission-ledger-harness.md](references/submission-ledger-harness.md). It is the single maintained procedure for canonical-ID duplicate checks, success evidence, local ledger rows, Notion synchronization, and support-folder movement.
+The strategy document must contain:
 
-Derive `application_dir` as `{company_name}_{jd_identifier}`. Prefer the official posting ID, a unique ID in the source URL, or a user-provided identifier. If no identifier exists, use a short normalized role slug as the suffix; do not append a random hash. Reuse an existing directory for the same company and JD instead of creating a duplicate.
+1. posting identity, source, liveness, and role lens
+2. atomic JD checklist covering responsibilities, qualifications, preferences, instructions, and conditions
+3. requirement-to-evidence matrix with evidence and eligibility states
+4. claim ledger and measurement cards for every retained metric
+5. selected and excluded experiences with reasons and ownership boundaries
+6. first-page/top-third scan plan and artifact manifest
+7. final exact crosswalk from every JD atom to `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외`
 
-## Workflow
+Do not create placeholder files or empty optional sections merely to satisfy a template.
 
-### 1. Normalize the Request
+## Execution
 
-- Read the JD input first through the JD / public job-posting route above. Record `MCP direct read` or `browser fallback read` in the strategy source note.
-- Resolve the Notion source URL, local fallback snapshot paths, and output paths.
-- Use the Notion Developer page as the default base resume/portfolio source. Do not silently substitute local markdown snapshots when Notion access is available.
-- If `analysis_path` is provided, use it as the JD analysis source and skip fresh analysis.
-- Otherwise, run `company-jd-analyzer` and request its output as `workflow/지원전/<application_dir>/<application_dir>_채용분석.md`.
-- The analyzer output must use the 12-section Korean structure from `company-jd-analyzer`. If key sections are missing, fix the analysis before generating application documents.
-
-### 2. Read Notion Source
-
-Fetch or otherwise verify the Notion Developer page through Composio before writing tailored output. Use `NOTION_GET_PAGE_MARKDOWN` for the known Developer page ID as the first read, and inspect nested blocks only if the Markdown completeness checks require it. Record `Composio Notion direct read`, `Composio narrow search`, or `local fallback` in the strategy source note.
-
-Rules:
-
-- Treat the Notion Developer page as reusable facts, not final copy.
-- Before composing, complete a source-completeness pass for every selected experience from both the Developer page and its relevant linked child page: capture the exact organization, role, employment period, project period, project context, stack, candidate-owned work, technical decision, validation/result, and source caveat. Do not draft from an earlier summary or a partial first-screen preview. Preserve exact source dates in the resume when known; if only an employment period is known, label it as the employment period or `재직 중 수행` rather than inventing a project start/end date.
-- Include a technology, tool, or experience in the submitted artifact only when the JD explicitly requires or prefers it, or when it is a direct analogous capability that explains one of those requirements. Do not add merely related technologies just because they appear in the source.
-- Use `db/이력서_원천.md` and `db/포트폴리오_원천.md` only as fallback snapshots when Notion cannot be accessed, or as supporting indexes for locating shared assets.
-- If Notion and local snapshots conflict, use Notion unless the user's latest correction explicitly says otherwise.
-- Treat `assets/portfolio/` as the shared source for reusable portfolio images such as architecture diagrams, component images, screenshots, diagrams, and logos.
-- Rewrite, reorder, and emphasize for JD fit.
-- Do not invent facts, numbers, responsibilities, tools, or outcomes missing from the Notion source or user corrections.
-- Do not blur multiple experiences into one claim. Never combine separate projects, education assignments, tool usage, or company work so they appear to be one implementation, one causal result, or one job responsibility. A bullet may connect only problem-action-result facts that happened in the same verified context; otherwise split them into separate bullets or keep the weaker item in strategy notes.
-- Never confuse what the candidate personally did with what a library, framework, or cloud service provides by default. Use `used`, `integrated`, `configured`, `connected to the UI`, `handled state`, `handled exceptions`, or `verified` when the candidate used an existing capability; reserve `implemented`, `designed`, or `improved` for source-backed code, UX, API contract, data flow, or validation work done by the candidate.
-- Do not present team-wide work, framework default behavior, managed-service built-in features, or library internals as personal implementation. When uncertain, write the narrower verified scope or keep the point in the strategy risk notes instead of the submitted artifact.
-- Do not confuse developing a product that contains a business domain with directly performing that domain's operations. For example, developing a franchise platform with CRM marketing features is valid; claiming direct advertising/marketing operations ownership or improvement is not.
-- When using adjacent domain experience, narrow the wording to the actual contact point and personal work, such as implementing user screens and API flows for a platform that includes CRM marketing features.
-- Do not invent motivation, intent, problem awareness, beliefs, or causal framing. Phrases like `~라는 문제의식으로` or `~하려는 의도로` require explicit source support from Notion or the user's latest correction.
-- Do not copy whole source sections verbatim unless the user explicitly asks for a base document.
+### 1. Preflight
 
-If the Notion source cannot be accessed through Composio, report the connection or access failure directly. Use local snapshot markdown only if the user allows fallback or if the current task can proceed with an explicit stale-source warning; do not switch to browser automation for the personal source.
+- Resolve company, role, posting ID, source URL, deadline/status, and application route.
+- Check `workflow/지원후/` and the application ledger for prior submission.
+- Check for another active folder for the same posting and reuse it instead of duplicating work.
+- Select the role lens before reading the resume as a whole: frontend, full-stack, AI/AX, data, or another JD-defined lens.
 
-Shared asset folders:
+### 2. Analyze the complete JD
 
-- `assets/portfolio/architecture/`: system architecture images and architecture diagrams
-- `assets/portfolio/components/`: UI/component images used across portfolio cases
-- `assets/portfolio/screenshots/`: reusable product or feature screenshots
-- `assets/portfolio/diagrams/`: flow, sequence, data, or process diagrams
-- `assets/portfolio/logos/`: company, product, or technology logos when legally usable
-
-When a portfolio case needs an image:
+- Invoke `company-jd-analyzer` first unless a current 12-section analysis already exists for the exact posting.
+- Decompose every responsibility, qualification, preferred qualification, submission instruction, and condition into atomic rows.
+- Separate hard eligibility from ranking preference. A preference gap is not an eligibility failure.
+- Preserve exact technical names where they matter, but do not copy JD wording as unsupported self-description.
 
-- Prefer an existing shared asset from `assets/portfolio/`.
-- Record reusable asset path decisions in Notion when the user asks to update the source; otherwise mention them in the strategy document.
-- Use relative paths from the generated application Typst file, usually `../../../assets/portfolio/...` from `workflow/지원전/<application_dir>/`.
-- Do not duplicate the same reusable image into each company folder.
-- Put company-specific, non-reusable submitted attachments in that company folder only.
-
-### Self-introduction
-
-- Generate `박건우_자기소개서.typ/pdf` only when the JD requests a self-introduction or the user supplies/requests one; keep it separate from the resume and portfolio.
-- First verify the posting's exact questions, character limits, and required file format. Address every requested prompt directly.
-- Apply the same source and claim checks as the resume. Do not invent customer interviews, team structure, operational scale, deployment ownership, evaluation systems, personality traits, causal results, or onboarding promises. Keep metrics attached to the project and measurement scope where they were recorded.
-- Before drafting, inspect the Notion Developer page's personal narrative and the relevant experience ledger. Build a readable, role-specific arc from the candidate's documented motivation or formative experience, through the choices and transitions that led to the target role, to concrete proof from relevant work and a company/JD-specific reason for applying. The narrative should answer “why this work, and why this role now?” rather than recite a chronology or list technologies.
-- Select only the parts of the personal narrative that clarify the role transition; do not expose sensitive details about other people, reproduce the whole life story, or turn a documented fact into an unsupported personality claim. For a frontend role, connect the user's documented interest in making technical results useful to people to actual frontend work: user-facing screens and flows, UI states, performance, and verified development process. Keep AI/ML as the origin or context when it explains the transition, not as the applicant's target identity unless the JD asks for it.
-- Make each paragraph advance the same arc: formative motivation or starting point → turning point and role choice → evidence that the candidate can do the target work → why this company/product/JD is the next relevant context. Use a small number of specific examples; keep project metrics attached to their project and avoid repeating resume bullets as a detached list.
-- The final company paragraph must name a verified product/team/JD need and connect it to one or more demonstrated capabilities. Avoid interchangeable praise, generic contribution promises, and a company/product name that is inconsistent with the actual employer or posting.
-- Compile the Typst source and verify extracted text and rendered layout before listing the PDF as ready.
-
-### 3. Analyze or Reuse JD Interpretation
-
-Fresh analysis is the default.
-
-Keep `company-jd-analyzer` responsible for:
-
-- company identification
-- role and team extraction
-- recent company signal verification
-- labeling claims as `[명시]`, `[최근근거]`, `[추정]`, or `[확인필요]`
-- writing one analysis markdown under the same `workflow/지원전/<application_dir>/` folder used for that application
+### 3. Build the evidence map
 
-The analysis brief must include these sections:
+- Retrieve the parent Notion page and the child sources for all retained experiences.
+- Build a compact table: `requirement / source / candidate action / result / evidence state / proposed artifact location`.
+- Record contradictions, rejected claims, and ownership limits before drafting.
+- For each metric, record: `measured workflow / baseline / change / after / scope or caveat`.
 
-1. 공고 핵심 요약
-2. 회사/서비스 개요
-3. 최근 6~12개월 주요 시그널
-4. JD에서 명시된 핵심 요구사항
-5. JD에서 읽히는 숨은 요구사항
-6. 이 회사가 원하는 사람상
-7. 이력서에 강조해야 할 사인
-8. 우선 배치할 경험/프로젝트
-9. 지원자 입장에서의 리스크
-10. 예상 면접 질문
-11. 총평
-12. 근거 출처 메모
+### 4. Decide the application strategy
 
-If the analyzer result is `workflow/지원전/미확인회사_미확인JD/미확인회사_미확인JD_채용분석.md`, stop without creating tailored resume or portfolio artifacts until the company and JD are identified.
-
-### 3-1. Treat the Analysis as the Tailoring Contract
-
-Before writing strategy, resume, or portfolio content, read the analyzer markdown and make the generation decisions from it.
-
-Required alignment:
-
-- Sections `4. JD에서 명시된 핵심 요구사항`, `5. JD에서 읽히는 숨은 요구사항`, `6. 이 회사가 원하는 사람상`, `7. 이력서에 강조해야 할 사인`, and `8. 우선 배치할 경험/프로젝트` are the primary decision source.
-- The resume headline, intro, core competencies, career bullet ordering, and project selection must be explainable from those sections.
-- The portfolio case order and case emphasis must be explainable from those sections.
-- If a source experience is strong in Notion but weak for the JD analysis, downplay or omit it instead of forcing it into the final document.
-- If the analysis has `[확인필요]` or weak evidence, do not turn it into a confident resume claim.
-- If the analysis and source facts conflict, stop and resolve the conflict against Notion and the user's latest correction before generating final Typst.
-- Build a claim ledger before drafting: `draft claim / source page or file and exact passage / candidate-owned action / project and role / JD item / keep, narrow, or exclude`. Do not draft from analysis prose, a tech stack, product data structures, or a previous resume alone. If a claim cannot be filled row by row, exclude it.
-- For frontend JDs, select the frontend implementation evidence first and surface the verified frontend stack beside that implementation in the first-page evidence. Keep backend, data, cloud, and AI-agent work only when it proves a stated frontend responsibility (for example, a candidate-owned progress UI); do not let backend infrastructure displace Next.js/React/TypeScript screen, API-state, navigation, rendering, performance, or collaboration evidence. Never claim a domain flow (such as orders, checkout, inventory operations) from a franchise product's business context unless the source confirms the candidate personally implemented that exact flow.
-- Do not reduce the JD to a handful of generic keywords. Split every concrete JD phrase into the `JD 원문 원자 체크리스트` before writing the resume.
-- Every checklist row with direct evidence must appear in a natural resume bullet using the JD's wording where truthful. Adjacent evidence must be clearly narrowed to the verified contact point. No-evidence items must be excluded from submitted claims and recorded only as a strategy risk.
-- Treat the full JD text as the contract, not the analyzer summary. Before writing or updating the resume, create a `JD 원문 원자 체크리스트` in the strategy document that preserves every concrete phrase from responsibilities, qualifications, preferred qualifications, submission notes, work conditions that affect fit, and company facts that matter to motivation. Each row must end in exactly one state: `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외`.
-- For every `직접 반영` or `축소 반영` row, record the exact final resume section and the resume wording that handles it. If there is no resume location, the artifact is not ready.
-- Do not treat an analysis/strategy claim as proof that the resume contains it. After drafting, open the final Typst and extracted PDF text and complete a row-by-row semantic crosswalk: copy the exact resume phrase (or a short, distinctive excerpt) into the checklist's `최종 반영 위치·문구` column for every `직접 반영`/`축소 반영` row. A row is not closed by a project name, a technology inventory, or a broad section label alone. For requirements with direct source evidence, verify that the resume actually surfaces the evidence at the right level (first-page `핵심 기술 근거` when it is a core qualification; relevant experience section otherwise). If the strategy promises a credential, project, metric, or technology that the final resume omits—or the resume contains it while strategy says it is unavailable—resolve the contradiction before delivery.
-- Add `## 사실·역할 경계` to the strategy. Record user corrections, unsupported workflow inferences, employer/client/project boundaries, and any tempting but unproven capability; distinguish each from the retained claim. When a correction excludes a phrase, add one or more exact `금지 문구:` rows (short phrases, not broad tokens) that must not occur in the final resume or self-introduction source/PDF. Run `validate_pre_submission.py` to enforce these explicit exclusions. A strategy without this section is incomplete.
-- Before composing, classify the JD's explicit qualifications and preferred qualifications against the full source experience index, not only the analyzer's recommended project list. A directly relevant academic, internship, or employment experience may be used even when the analyzer overlooked it; retain it only at the ownership level supported by its source. If the evidence is adjacent, label it `축소 반영`; if absent, use `전략 리스크` or `제출 제외` rather than upgrading it to a direct match.
-- Run a multilingual character QA on both the source Typst and extracted PDF text. Search for Hiragana/Katakana (`U+3040–U+30FF`), replacement characters, mojibake, and unexpected non-Korean prose. Every match must be reviewed in context: preserve verified proper names and source-language terms, but remove accidental translation fragments or mixed-language insertions. Record the result in the strategy's final validation note; a clean automated scan does not replace visual PDF review.
-- For every `전략 리스크` or `제출 제외` row, record why it is not used, such as `직접 근거 없음`, `지원서에 쓰면 과장`, `제출 문서 우선순위 낮음`, or `면접 대비로만 보관`.
-- If the user later pastes additional JD text, translated JD text, official job-page content, application-form instructions, or asks whether all content is included, rerun this full checklist against the new text. Do not answer from the existing analysis alone, and do not claim completion until the strategy and resume have been updated or each omitted item has a recorded reason.
-- Reproduce omissions before fixing when the user reports missing JD content: compare the current resume and strategy against the original JD phrases, write the missing rows and root cause into an application-folder note named `<application_dir>_누락재현_원인분석.md`, then patch the skill or AGENTS rule that allowed the miss. This note is allowed when the user explicitly asks for root-cause recording.
-
-### 4. Write Strategy Markdown
-
-Create or update:
-
-`workflow/지원전/<application_dir>/<application_dir>_지원전략.md`
-
-Use these top-level sections:
-
-1. `# JD 매칭 요약`
-2. `# 맞춤 이력서`
-3. `# 포트폴리오 제출 메모`
-4. `# 조정 메모`
-5. `# 제출 파일 메모`
-
-Inside `# JD 매칭 요약`, include:
-
-- JD 핵심 키워드와 원천 경험 매핑 테이블
-- `JD 원문 원자 체크리스트` table with one row per concrete responsibility, qualification, preferred qualification, submission note, and company/motivation fact that should affect tailoring
-- a `Notion 원천·하위 페이지 확인` table that records each retained experience, the parent/child source read, and the source-backed facts used in its submitted bullet
-- `[명시]`, `[최근근거]`, `[추정]`, `[확인필요]` 라벨 유지
-- 직접 매칭, 축소 반영, 미커버 리스크 구분
-- why each selected resume/portfolio item belongs in the final output
-- which attractive DB items were intentionally excluded because the analysis does not support them strongly enough
-
-Inside `# 맞춤 이력서`, include:
-
-- 상단 지원동기 방향
-- 첫 페이지 판단면: 신입/경력/교육/단기 인턴 등 현재 상태가 어디에서 보이는지, JD와 맞는 대표 근거, 대표 링크/무기 후보와 사용 여부
-- 자기소개 방향
-- 핵심 기술 근거
-- 경력
-- 프로젝트
-- 제외하거나 축소할 근거
-
-Inside `# 포트폴리오 제출 메모`, record whether the JD asks for a general portfolio or explicitly asks for AI-usage evidence. For a general portfolio request, point to the user's separately managed existing PDF and do not generate a company-specific general portfolio. Only when the JD explicitly asks for AI-usage evidence, or the user explicitly requests it in the current task, create a tailored AI-usage portfolio candidate list and PDF/Typst covering verified AI workflows, prompts, Skills, Agent MD, verification, and harness improvement.
-
-Inside `# 제출 파일 메모`, include the final resume and portfolio paths and whether the company folder is pre-submission or submitted. The final resume paths must use the fixed submit-ready filenames `workflow/지원전/<application_dir>/박건우_이력서.typ` and, when compiled, `workflow/지원전/<application_dir>/박건우_이력서.pdf`.
-
-Inside `# 조정 메모`, include:
-
-- 이 JD에서 특히 강한 카드 3개
-- 축소하거나 제거한 요소와 이유
-- 최종 문서에서 확인해야 할 리스크
-
-### 6. Generate Tailored Files
-
-Create or update:
-
-- `workflow/지원전/<application_dir>/박건우_이력서.typ`
-- `workflow/지원전/<application_dir>/<application_dir>_포트폴리오_박건우.typ` only when the JD explicitly requires AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio; never generate a general tailored portfolio by default
-
-Use existing templates or nearby output patterns only when they exist in the repository. If templates are unavailable, create Typst files with conservative structure and clearly report that the base template was unavailable.
-
-Template selection order:
-
-1. `templates/public/resume.typ` and `templates/public/portfolio.typ` when both exist
-2. `workflow/지원전/_shared_application.typ` plus `workflow/지원전/_fixed_portfolio_cases.typ` when available
-3. the most recent company folder under `workflow/지원전` that has both resume and AI-usage portfolio Typst files, only when an AI-usage portfolio is being generated
-4. conservative standalone Typst files as a last resort, with a clear blocker/risk note
-
-Generation rules:
-
-- ### 생각등대 판단 기준 (이 절의 다른 일반 규칙보다 우선)
-
-- **직무 적합성**: 경험·기술·불릿은 공고의 담당업무, 기술스택, 자격요건, 우대사항 중 하나를 직접 증명할 때만 유지한다. 프론트엔드 공고에는 프론트엔드 사용자 흐름·상태·성능 근거를, 풀스택 공고에는 화면부터 API·데이터·배포까지 연결된 근거를 선택한다. 학력·병역·수상·자격·어학도 지원서가 요구하거나 JD에 실제 도움이 되는 항목만 간결하게 포함하며, 단지 사실이라는 이유만으로 남기지 않는다.
-- **사실과 필요성**: `저는 ~한 사람입니다`, 추상적 강점, 희망, 기술 목록, 빈 페이지를 채우는 문장을 쓰지 않는다. 모든 문장은 원천으로 검증되고 현재 JD의 판단에 필요한 경험이어야 한다. 사실이어도 JD 증명력을 더하지 않으면 삭제한다.
-- **첫 페이지**: 면접관이 첫 스캔에서 지원자의 상태(정규직 경력, 신입, 교육, 단기 인턴 등), 대표 경험, 구체적 결과, 검증된 AI 개발 경험을 확인할 수 있게 배치한다. 프로젝트 본문을 읽기 전에도 현재 경력/교육 맥락과 JD에 맞는 강점이 드러나야 한다. 근거가 없는 슬로건·한 줄 소개는 넣지 않는다. 자기소개가 필요한 경우에만 5줄 이내로 대표 프로젝트 하나, 검증된 AI 개발 방식 하나, 직무 관련 사실을 연결하고 자기평가 없이 작성한다.
-- **자기소개 3요소**: 자기소개가 필요한 경우 `팩트 기반 직무 전환/강점`, `작성 시점에 중요한 기술 흐름 중 원천으로 검증된 AI 활용 방식`, `가장 자신 있는 프로젝트 하나`만 사용한다. `저는 개발을 즐기는 사람입니다`, `소통을 잘합니다`처럼 확인할 수 없는 자기평가는 금지한다. 사용자가 제공한 서사도 제출 문장에서는 5줄 이내의 경험 근거로 압축하고, 성장 욕구나 성격 설명은 삭제한다.
-- **대표 무기/링크**: 첫 페이지에는 가능하면 JD와 직접 연결되는 하나의 `나만의 무기`를 둔다. 블로그 홈, GitHub 메인, 링크 모음이 아니라 면접관이 클릭했을 때 강점을 바로 확인할 수 있는 특정 글, README, 프로젝트, 데모, 기술 기록이어야 한다. 링크와 내용이 확인되지 않거나 JD 판단에 도움이 되지 않으면 넣지 않는다. 링크는 의미 있는 텍스트에 걸고, 클릭 유도만을 위해 뜬금없는 위치에 raw URL을 붙이지 않는다.
-- **핵심 기술 근거**: 첫 페이지 요약은 `기본기 보유`, `자격요건 충족`, `협업 역량` 같은 추상 요약이 아니라, JD 자격요건·우대사항을 직접 증명하는 원천 경험 3-5개로 구성한다. 각 항목은 `문제/제약 -> 기술적 판단·구현 -> 수치 결과 또는 명확한 산출물`을 갖춰야 하며, 단순 공고 문구나 기술명을 라벨처럼 옮기지 않는다.
-- **기본 요구와 차별화 균형**: 첫 페이지는 JD의 기본 요구를 실제 구현 근거로 증명하고, 그중 면접 질문으로 이어질 수 있는 강한 기술 판단·성과를 차별화 카드로 둔다. `JavaScript 기본기`, `웹 기본 동작 이해`, `AI 검토 가능` 같은 말은 그대로 쓰지 말고 Code Sync 번들/API 개선, 프비티 화면/API 상태 연결, CPPM 이벤트·로딩 상태 처리, 검증된 AI 개발 프로세스처럼 기술적 증거로 바꾼다.
-- **직무 강점과 깊이 검수**: 스택 일치만으로 근거를 선택하지 않는다. 원천에서 사용자·제품에 준 검증된 변화와 그 변화를 가능하게 한 개인 소유의 구현 메커니즘(예: 이벤트 수명주기·중복 구독 방지·실시간 진행 표시·라우트 단위 로딩 최적화)을 따로 찾아 `JD 요구 -> 근거 -> 내가 만든 메커니즘 -> 결과 -> 문서 위치`로 연결한다. 강점은 결과만으로도 기술만으로도 완성되지 않는다. 결과와 기술의 인과가 원천에 없으면 각각의 범위에 맞춰 분리하고, 차별점이 없는 JD 항목은 차이를 만들어내려 과장하지 않는다.
-- **AI 경험**: 모든 소프트웨어 직무에는 검증 가능한 AI 개발 경험을 한 줄 이상 포함한다. 단순 도구 사용이 아니라 작업 범위·계획, 조사·구현·리뷰의 역할 분리, 결과 검증 방식, 속도·일관성·오류 감소 중 실제로 확인된 하나 이상을 보여 준다. AI가 만든 결과와 지원자가 직접 구현·통합·검증한 범위를 분리한다. 사용자가 최신 사실로 확인하지 않은 개발 프로세스는 생성·제안하지 않는다.
-- **AI 활용 차별화**: AI 활용 경험은 도구명이 아니라 통제 방식으로 작성한다. 원천 근거가 있을 때만 `Plan-First Workflow`, `Human Approval Gate`, `Researcher/Planner/Reviewer 역할 분리`, `프롬프트·도구 사용 로그`, `재현성 및 오류 원인 추적`을 사용한다. 이 항목은 단순 생산성 자랑이 아니라 작업 범위 이탈, 검증 부재, 원인 추적 불가 같은 실무 리스크를 어떻게 줄였는지로 써야 한다.
-- **지원동기**: 지원동기를 요청받았거나 이력서 상단에 둘 만큼 회사/역할 연결이 강할 때만 작성한다. 회사/팀/직무 각각의 검증된 사실, 지원자의 인접 경험, 입사 후 수행 가능한 구체적 업무를 연결한다. 회사·서비스 칭찬이 아니라 `나를 뽑으면 어떤 업무를 어떻게 수행할 수 있는지`가 중심이어야 한다. `경험해 보고 싶다`, `서비스가 좋아서`, `~하고 싶다` 같은 희망 서술로 끝내지 않는다.
-- **지원동기 실패 방지**: 지원동기는 면접관이 `공고와 회사 업무를 읽고 지원했는지`, `유관 부서·도메인 맥락을 이해하고 대화할 수 있는지`, `입사 후 맡을 일을 상상했는지`를 판단하는 증거다. 회사명만 바꿔도 통하는 문장, JD 요약문, 막연한 관심, 배우고 싶다는 문장은 삭제한다. 프론트엔드 JD에서는 회사 서비스의 사용자 흐름·UI/UX·API 연동 맥락을 후보자의 검증된 화면 구현 경험과 연결한다.
-- **불릿 구성과 순서**: 프로젝트별 불릿 수는 정해진 할당량이 아니라 JD 증명 범위와 원천 근거의 개수로 결정한다. 강한 근거를 먼저 배치하되 모든 서로 다른 직접 근거를 임의로 줄이지 않는다. 불릿 유형별 개수 제한을 두지 않으며, 한 문장에 다른 문제·기능·성과가 섞이지 않게 나눈다. 구체 절차와 품질 기준은 `references/resume-bullet-quality.md`를 따른다.
-- **불릿 패턴**: 하나의 고정 템플릿을 강제하지 않는다. 문제형은 `문제/제약 → 판단·구현 → 결과`, 기능형은 `사용자/작업 맥락 → 구현 흐름·상태 → 검증 가능한 동작/산출물`을 쓴다. 수치가 없으면 실제 화면 상태, API 계약, 테스트 결과, 배포 구조처럼 확인 가능한 산출물로 끝낸다. 기술명·기대효과만 있는 문장은 제출하지 않는다.
-- **불릿 등급 기준**: 상급 불릿은 `문제 + 분석 도구/판단 기준 + 해결 기법 + Before→After 수치`를 갖춘다. 중급 불릿은 `문제 + 해결 기법 + 정성적 결과 또는 산출물`을 갖춘다. 하급 불릿은 `기능 구현 + 기대 효과`에 머무르므로, 제출 문서에서는 직접 근거가 약한 보조 항목에만 제한적으로 사용한다. `UX 향상`, `생산성 증대`, `협업에 기여`는 원천 수치나 산출물 없이는 결과로 쓰지 않는다.
-- **한 끗 다른 고민**: 기술명만 적지 말고, 원천 근거가 있을 때 왜 그 방식을 선택했는지와 무엇을 막으려 했는지까지 짧게 드러낸다. 예를 들어 읽기/쓰기 흐름 분리, 실패 시 수정 기능까지 막지 않기, 캐시 전략 분리, 작업 범위 승인 같은 기준은 확인된 경우에만 사용한다. 확인되지 않은 설계 이유와 트레이드오프는 면접 대비 메모로 낮춘다.
-- **성능·시간 수치의 최소 정보**: `프롬프트 경량화`, `Agent 흐름 조정`, `성능 최적화`처럼 조치만 요약한 뒤 수치를 붙이지 않는다. 반드시 `(1) 어떤 요청/사용자 흐름을 측정했는지`, `(2) 지연을 만든 처리 단계 또는 제약`, `(3) 실제로 바꾼 경로·라우팅·쿼리·프롬프트·구성`, `(4) Before→After와 대표/평균/최대 등 측정 범위`를 원천에서 확보한다. 이 중 하나라도 없으면 수치를 빼거나, 원천에서 확인되는 좁은 산출물로 낮춘다.
-- **차별화 기준**: 기술명 자체가 아니라 왜 그 방식이 필요했는지, 어떤 기준·트레이드오프를 두었는지, 사용자의 어떤 문제나 운영 제약이 달라졌는지를 원천 근거가 있을 때만 드러낸다. 원천에 없는 설계 이유·대안 비교·효과는 만들지 않는다.
-- **포트폴리오**: 대표 사례는 문제·해결·결과를 각각 분리하고, 가능한 경우 화면·다이어그램·스크린샷을 붙인다. 이력서 불릿을 그대로 늘리지 말고 기술적 판단과 검증 범위를 확장한다.
-- **생성 검증**: 직무 무관 내용, 수치·산출물 없이 끝나는 정성 문장, 희망 서술형 지원동기, 단순 도구 나열 AI 문장, `기본기 있습니다`식 추상 요약, 단점으로 읽히는 표현을 제거한다. 모든 직접 근거를 이력서나 핵심 기술 근거에 배치했는지 JD 체크리스트와 대조한다. 경험이 없는 슬롯을 채우려고 사실을 만들지 않으며, 정보량을 줄인 뒤에는 서로 다른 JD 증거가 실수로 사라지지 않았는지 재검토한다.
-- **불릿 언어 하네스**: 생성 뒤 모든 불릿을 사실 하네스와 문장 하네스로 분리 검수한다. 문장 하네스는 `(1) 지원자가 한 행동을 나타내는 주된 서술어가 하나인지`, `(2) 수식하는 대상과 서술어가 자연스럽게 호응하는지`, `(3) 나열된 기술·명사가 문장 뼈대를 대신하지 않는지`, `(4) 접속 표현이 문제→조치→결과 관계를 실제로 나타내는지`, `(5) 한 불릿에 다른 문제·프로젝트·결과가 섞이지 않았는지`, `(6) 소리 내 읽었을 때 번역체·명사 나열체·불완전 문장이 없는지`를 확인한다. 하나라도 실패하면 사실을 줄이지 않는 범위에서 다시 쓴다.
-- **형식과 시각 요소**: 제출 이력서는 포트폴리오가 아니다. 사진, 이모티콘, 과한 색상, 장식용 그림, 큰 박스/보더 강조는 사용자가 명시적으로 요청하거나 제출처가 요구할 때만 사용한다. 기본 공용 템플릿은 텍스트 위계, 여백, 링크, 굵기만으로 신뢰성과 가독성을 만든다.
-
-- Keep company-specific tailoring in the company folder.
-- Always generate a tailored resume when the application is still open and the company/role are identified.
-- Apply a strict JD-relevance gate before choosing any experience, bullet, or tech-stack item: retain it only when it directly proves a responsibility, qualification, or preferred qualification in the current posting. Being true in the Developer source is not enough. Record every excluded otherwise-strong item and its JD-mismatch reason in the strategy; do not use unrelated experience as filler.
-- **JD 어휘 매핑**: `JD 원문 원자 체크리스트`의 담당업무·자격요건·우대사항별로 `공고 표현 → 원천 근거 → 최종 문장 위치`를 먼저 확정한다. 직접 또는 좁은 유사 근거가 있으면 공고의 핵심 명사·동사를 자연스러운 한국어 문장 안에 한 번 이상 보존한다. 예를 들어 `제품·기술 해결책 설계`, `제품 기능 개발·개선`, `AI 도구 활용`, `핵심 지표 분석·성과 검증`처럼 사실로 증명되는 표현은 핵심 기술 근거, 프로젝트 설명, 또는 불릿에서 우선 사용한다. 키워드를 문장 끝에 붙여 넣거나, 근거 없는 담당업무·우대사항을 그대로 베끼지 않는다. 최종 검수에서 `직접 반영` 행마다 공고 어휘 또는 의미상 동등한 표현이 실제 이력서에 있는지 확인하고, 없으면 근거가 있는 범위에서 다시 쓴다.
-- AI-assisted development practice has no standing cross-role relevance exception. Include it only when the JD explicitly asks for AI coding tools or the work context makes that practice a concrete requirement; then state the source-backed workflow, candidate-owned review, and a result or deliverable. Never write a bare `AI 활용`, name a tool without the work it changed, or imply that AI produced unreviewed code.
-- Decide role emphasis before drafting. For frontend roles, keep the headline, core capabilities, tech stacks, and most bullets focused on frontend user flows, UI state, API integration, accessibility/responsiveness, performance, and the single relevant AI workflow; omit backend, database, cloud, and Kubernetes detail unless it directly proves a stated JD requirement. For fullstack roles, show a balanced frontend-to-backend request/data/deployment flow. For AI Native/AI product roles, show the relevant product-engineering base plus verified AI workflow/implementation evidence, not an indiscriminate inventory of all stacks.
-- Make the role lens visible enough that the resume could not be mistaken for a generic all-purpose resume. If the JD is frontend, the reader should mainly see screen implementation, UI state, user flow, responsive/accessibility work, frontend performance, API response handling, realtime UI, and frontend development workflow. Backend, database, cloud, deployment, or data-processing evidence belongs only when the JD explicitly asks for it or when it is necessary to explain a frontend result; otherwise remove it from the headline, core capabilities, stack lines, and first-page bullets. If the JD is fullstack, do the opposite: show the connected screen-to-API-to-data flow rather than only UI. If the JD is AI/AX, foreground verified AI product implementation and workflow, not a general stack inventory.
-- Treat every technology list as an evidence list, not a career inventory. A stack line may contain only technologies needed to establish the current JD match or a necessary adjacent competency. This detailed-evidence gate does not remove the required factual profile sections (education/activity including short internships, military service, academic history, awards, certificates, language); retain them as independent full-entry records.
-- Apply a stack-line gate separately from bullet selection. Put a technology in the visible `기술 스택` line only when at least one holds: (1) the JD explicitly requires or prefers it, (2) it is indispensable to understanding the selected experience's direct JD proof, or (3) omitting it would hide a stated required flow such as the requested frontend-to-backend, data, cloud, or container boundary. Remove true-but-irrelevant tools, test libraries, editors, state libraries, styling tools, and incidental managed services when they do not clear this gate; a long stack line can signal unfocused fit and become a negative. Keep such implementation detail only in a directly relevant bullet when it explains a decision.
-- Preserve section boundaries for records that are selected. Include `교육 및 활동`, `수상`, `자격증 및 어학`, and `병역` only when the JD or application makes them useful or required; keep `학력` as a concise factual section when customary or required. Place any selected short internship as its own dated, role-labeled entry inside `교육 및 활동`; do not create a separate `단기 인턴` section. Awards must remain separate from credentials; list selected language scores under `자격증 및 어학`. Never merge military service with education/activity or academic history with a project section.
-- Use full dated-entry layout for `경력` and standalone `주요 프로젝트`. For any selected `교육 및 활동` entry, list its exact period, role, organization, and one bounded factual line. For selected lower-page records (`수상`, `자격증 및 어학`, `학력`, `병역`), prefer compact chronological rows or bullets. Do not turn them into decorative mini-cards or title-only fragments. Omit programs and activities that do not support the JD instead of preserving them as filler.
-- Build every resume from one explicit visual system: a single page-margin rule, a small fixed type scale (name, section, entry, body, detail, metadata), and a small fixed spacing scale used for section headers, entry gaps, stack/overview gaps, and bullet gaps. Reuse the same section-header rule and divider treatment for every section, including awards, credentials, academic history, and military service; never introduce a compressed footer-specific heading style. Keep line leading tighter than the gap between separate bullets, and render the PDF to check for orphaned headings, uneven page bottoms, inconsistent columns, or one-record spill pages before delivery.
-- For `수상`, `자격증 및 어학`, `학력`, and `병역`, use chronological factual rows or bullets with dates and verified labels. Do not convert an award into a project result, do not write a language score as a certificate, do not omit dates that the Developer source verifies, and keep these sections visually aligned instead of mixing unrelated forms.
-- Review every inherited bullet from a base resume before retaining it. Re-score it for direct JD match, candidate ownership, specificity, outcome, and redundancy. Rewrite or remove it when it fails any of these checks; formatting a generic bullet differently does not make it tailored.
-- Keep detail proportional to evidence strength, not to page convenience. For a selected primary experience, include the exact period, role, service context, and all distinct, strong JD-relevant bullets needed to expose the underlying technical decisions and validation; do not collapse several verified source facts into one vague summary. Remove redundancy at the claim level, not by arbitrarily capping bullet count, then use layout/page breaks rather than deleting high-signal evidence merely to force a one-page document. Follow [references/resume-bullet-quality.md](references/resume-bullet-quality.md) for count and coverage decisions.
-- Use the first page as an interviewer decision surface. Within the first scan, show the strongest directly relevant project/work evidence, 3-4 non-overlapping core strengths, and the verified AI workflow. Add a headline or self-introduction only when it conveys a specific source-backed fact that is not already clearer in the experience section; never use a generic role slogan. Do not use the first page for weak history, broad skill catalogues, generic claims, or an unrelated second-best project.
-- When a resume self-introduction is necessary, keep it fact-based and within five rendered lines. It may contain only a role-relevant fact, one verified AI-development practice, and one strongest project/professional fact; remove biography, aspiration, personality claims, technology inventories, and `저는 ~한 사람입니다` self-description. Omit it entirely when it would only restate the resume.
-- When a `지원동기` is requested, write it separately from the self-introduction and make all three links explicit: why this company, why this team, and why this role. Ground the company/team link in a verified company/product/team fact, connect it to 1-2 verified adjacent experiences, then name the concrete work the candidate can perform after joining. Put the most effort into this reasoning; generic praise, a JD paraphrase, or an ending that only says `기여하고 싶습니다` fails the motivation check.
-- Write bullets as evidence rather than self-description. One bullet normally contains one same-context chain: `domain or user/task context -> observed problem or constraint -> candidate-owned analysis, decision, or implementation -> measured result or concrete delivered state`. Do not merge chains from different products, and do not invent a problem when the evidence only supports a feature; in that case use `user/task context -> implemented feature or flow -> verified artifact/user-visible state`.
-- Prefer these compact bullet patterns when evidence supports them: performance `context + bottleneck + analysis tool + technique -> Before/After`; consistency `domain action + concurrent/invalid state -> locking/validation/transaction -> protected quality or test result`; feature `standard/framework + user flow -> implemented interaction/API/state -> verified behavior`; infrastructure `cloud/container component + deployment/operation need -> configured flow -> verified deployment, routing, state-check, or scaling artifact`; collaboration `document/decision + candidate-owned coordination -> completed handoff or execution result`. Use a named analysis/implementation technique only when source-backed.
-- For an AI/Agent response-time bullet, use `measured request path + latency-causing stages/constraint -> named routing or prompt/Agent changes -> scoped Before→After`. Never submit `프롬프트 경량화와 Agent 흐름 조정으로 N초 단축` as a complete bullet. For example, when the source supports it, identify the long-running retrieval/validation/generation path, the lighter route for a request class, and the specific prompt or Agent routing adjustment. Keep a Trace/progress UI bullet separate from the processing-time bullet unless the source proves that the UI changed processing time.
-- A strong result ends in a number, a bounded validation result, or a concrete deliverable. Use causal wording only where the source verifies it. If no metric exists, write a defensible outcome such as an implemented screen state, error/empty/loading path, API contract, test result, deployment structure, or documented handoff; do not substitute vague claims such as `UX 향상`, `생산성 증대`, or `협업에 기여`.
-- If a complete, source-backed performance chain does not fit in a one- or two-line resume bullet, shorten stack names and incidental context first; do not remove the measured request, the concrete change, and the measurement scope. Put extended technical details in the portfolio or strategy, but retain the causal minimum in the resume.
-- Before finalizing each bullet, verify: (1) which exact JD item it proves, (2) which source fact supports every claim, (3) what the candidate personally decided or implemented, (4) why that technique was selected, when evidence supports the reason, (5) what changed or was delivered, and (6) whether another retained bullet already proves the same point. Delete or narrow a bullet that cannot answer these questions.
-- Preserve source-backed results during rewriting. If the source fact contains a metric, user-visible outcome, reduced inquiry/complaint signal, memory-leak-risk reduction, or other concrete result, the final bullet must carry that result through unless the strategy records a clear JD or evidence reason for omitting it. Do not downgrade `문제 -> 조치 -> 결과` into `조치를 제공했다` or `기능을 구현했다`.
-- Run the bullet language harness after the fact/JD checks, not before them. Rewrite in this order: `keep the source-backed subject and action -> state the user/workflow context -> remove stacked modifiers and incidental stack names -> split a second chain into a new bullet or delete it -> retain the result`. Do not repair awkward Korean by adding unverified intent, impact, or causal language. Avoid fragments ending only in a noun, consecutive `~하고/~하며/~로` chains, untranslated English grammar, and more than two same-level connectors in one sentence. Preserve an unfamiliar technical term only when the reader also gets its role in the workflow.
-- Apply a final necessity check to every sentence: if deleting it does not reduce evidence for a concrete JD item or remove an independently required application fact, delete it. AI-tool workflow receives no automatic exception. Never keep a sentence merely because it is true, technically impressive, or helps fill a page.
-- AI bullets require the same scrutiny as technical bullets. Prefer a traceable workflow such as `scope/plan -> implementation -> verification -> result`; separate AI-generated output from the candidate's review, integration, and validation. Include only the portions actually verified in the source and keep one AI bullet distinct from product-feature bullets so the interview thread is clear.
-- Before finalizing the resume, run a coverage-and-lexicon pass against every row in the `JD 원문 원자 체크리스트`. Search for the submitted resume's corresponding wording and verify semantic coverage manually for paraphrases. For every source-backed `직접 반영` row, retain the JD's core noun or action verb in a natural submitted sentence unless a Korean synonym is clearer; record any omission reason. Important exact phrases such as product names, role-specific evaluation words, submission-form instructions, and company-scale facts must either appear in the resume/strategy or have an explicit omission reason. Do not declare the artifact ready while a directly supported checklist row is missing from the resume.
-- The final checklist is a deliverable audit, not a planning table: verify every row against the rendered resume PDF, not just the Typst source or analyzer. Store a short exact excerpt and section in the row so a reviewer can locate it without interpretation. Any mismatch between checklist state, source evidence, Typst, and PDF is a release blocker.
-- After generation, run a separate artifact-integrity pass. Compare the final resume against the strategy and analysis: the selected `핵심 기술 근거` items and ordering must match the strategy exactly, every retained project/activity must have a JD-fit reason, and no inherited item from a generic/base resume may remain unless the strategy explicitly retains it. Treat any mismatch as a failed generation requiring correction, not as a cosmetic review note.
-- Run a drift pass after every user correction. Search the strategy and resume for stale internal labels, excluded technologies, old ordering, or earlier wording that no longer matches the corrected artifact. Update or remove stale strategy rows such as old `경력 구분`, backend/cloud keywords in a frontend resume, or metrics that are kept only in notes but no longer appear in the submitted document.
-- The final pass must also check for stale or contradictory claims by searching the generated source for excluded activities, unsupported JD keywords, duplicate work/project descriptions, and strategy items that do not appear in the artifact. Report the exact mismatch before claiming readiness.
-- If any exact JD phrase is intentionally not used because it lacks evidence, keep it in the strategy risk table; do not silently drop it.
-- Do not generate a tailored general portfolio PDF, Typst, or candidate list. When a JD asks for a general portfolio, provide the user's separately managed existing `existing_portfolio_pdf` path for submission. Create an AI-usage candidate list and AI-usage portfolio artifact only when the JD explicitly asks for AI-usage evidence or the user explicitly requests a tailored AI-usage portfolio in the current task.
-- The portfolio candidate Markdown must rank 3-6 cases by JD fit. For every case, write: `JD requirement -> verified experience -> problem/constraint -> architecture/data flow -> code or prompt/tool detail -> result/validation -> scope caveat`. Use concrete code-level details when verified, such as API contracts, queue/worker boundaries, event/state handling, retries, pagination, sanitization, prompt instructions, agent routing, or test commands. Do not turn the candidate list into a polished portfolio or invent missing implementation details.
-- Do not list JD-required technologies or duties as unsupported personal experience. If another verified experience demonstrates the same underlying competency, rewrite it around that competency and keep the evidence source clear.
-- Extract the exact evaluation words from every JD responsibility, qualification, preferred qualification, and application instruction into the checklist. Build a mapping of `JD wording -> verified source fact -> candidate-owned action -> resume location or omission reason`. For every item with direct evidence, reuse the JD wording naturally in a bullet or `핵심 기술 근거` item; for adjacent evidence, use a narrower truthful equivalent; for no evidence, exclude the term rather than keyword-stuffing.
-- Never hard-code a universal project priority. Recompute the project set for each JD from the evidence records: select one or more projects only when each contributes a distinct or stronger match, prefer the smallest non-redundant set that covers the important requirements, and record the chosen projects and order only in that company's strategy file. A new project must become eligible through the same evidence schema without changing this skill.
-- For junior/new-grad style applications, prefer 2-3 strong projects or workstreams over a broad archive. A primary project may have about 6-8 evidence lines only when each line proves a distinct JD requirement; otherwise keep fewer bullets. Do not add a third project or extra bullet just to fill space.
-- When repository evidence is needed, inspect the full history and candidate-authored changes before writing portfolio or resume claims. Store reusable code evidence as repository/file/function/commit references and concise implementation summaries; do not copy whole repositories or attribute teammate-owned features to the candidate.
-- Separate personal work from library/framework/service responsibility in every bullet. For example, Yjs synchronization, Monaco editing behavior, Bedrock Agent trace generation, Amazon API Gateway WebSocket APIs, SQS queueing, and OpenSearch retrieval are platform/library or managed-service capabilities; the resume should state the candidate's verified work such as integrating them, defining API/data contracts, rendering progress state, using `PostToConnection`, handling edge cases, improving UX, or validating behavior.
-- Make candidate ownership grammatically explicit in every technical bullet. Use verbs such as `설계했습니다`, `구현했습니다`, `연동했습니다`, `분리했습니다`, `검증했습니다`, `분석했습니다`, and `적용했습니다` only for source-backed candidate work. Name platform behavior separately as context: for example, write `Bedrock Agent가 생성한 Trace 이벤트를 진행 단계 UI로 변환해 연동했습니다`, not `Trace 기능을 구현했습니다`; write `Y.Doc 공유 흐름을 구현했습니다`, not `Yjs 동기화를 구현했습니다`; write `API Gateway WebSocket APIs와 PostToConnection을 사용해 전달 경로를 구성했습니다`, not `WebSocket API를 개발했습니다`.
-- Do not let a bullet's grammatical subject switch from the candidate to an unspecified system. A sentence such as `Host가 조회한 뒤 전달해` must identify what the candidate implemented: `Host 단일 조회·Y.Doc 전달 흐름을 구현해`. A service/project overview may describe product scope, but it must not imply personal ownership of all service features.
-- For CPPM's real-time Agent status work, lead with the user-visible change: convert `Bedrock Agent Trace` events such as search, Knowledge Base retrieval, and Action Group calls into user-friendly processing steps, then deliver them to the screen through `Amazon API Gateway WebSocket APIs` as a progress-status UI. Do not describe this as exposing internal logs. Describe `Amazon CloudWatch` separately as the tool used to analyze and validate Agent routing and Lambda/OpenSearch error flows.
-- Keep CPPM outcomes separate: Trace/progress UI reduced uncertainty about whether a 1-2 minute task was still running and contributed to fewer abandonment inquiries; prompt/Agent-flow optimization reduced the measured average response time from about 2 minutes to 1 minute 10 seconds. Do not claim that the Trace UI itself reduced elapsed processing time.
-- For CPPM's waiting-experience improvement, keep the causes and outcomes distinct. The OpenSearch Agent could retry with similar search terms or different periods, or answer as if data existed, when its verification query returned no results. Describe the verified control as a validation prompt with explicit no-result, retry-limit, and error-termination conditions. The prompt and Agent flow initially made responses long; prompt simplification/lightening and flow adjustment reduced the average response from about 2 minutes to about 1 minute 10 seconds. The graph-code generation, execution, S3 storage, and link delivery flow was working; separately, because completion time was not predictable enough for a reliable percentage or remaining-time estimate, convert search, Knowledge Base retrieval, and Action Group Trace events into user-friendly real-time processing steps. If no measured abandonment-rate reduction exists, write only that it contributed to reducing abandonment inquiries.
-- Do not combine separate verified facts into a new technology label. For example, if Bedrock Agent Trace and Amazon API Gateway WebSocket APIs are separately verified, do not write `WebSocket Trace`; write only verified units such as `Bedrock Agent Trace`, `Amazon API Gateway WebSocket APIs`, or `progress/status UI`.
-- Any fact marked as draft, needs confirmation, limited, or uncertain in Notion/local snapshots must not be written as completed implementation. Downgrade it to the confirmed level such as reviewed, designed, PoC, learned, or exclude it.
-- Follow the `생각등대` writing guide: each strong bullet should be technically credible but readable, using a problem/reason/implementation/result structure. Avoid opaque internal shorthand and avoid writing only tool names.
-- Treat the resume as a decision document for getting an interview, not a career archive. The first 10-15 second scan should show role fit, the strongest practical evidence, technical depth, and no risky overclaims.
-- Bullets should show what changed because of the candidate, not just what they were responsible for. Prefer scope, numbers, user/business impact, or validation results; when production metrics are unavailable, use verifiable scope such as code size, API count, constraints, processing time, UI/state/exception coverage, or test coverage.
-- Apply the shared `생각등대` rules: select only experience directly connected to the JD's responsibilities, qualifications, and preferred qualifications; make the first page immediately show the candidate's differentiating strength and strongest evidence; do not pad the resume with every known experience.
-- Review AI-tool usage only when the JD explicitly values AI-assisted development or the role's core work makes that practice relevant. Include a concise first-page line only if the candidate-owned workflow, context, review, and result are evidenced; AI practice is not a cross-role exception, and `AI 활용` must never stand alone as a keyword.
-- Default bullet structure is `problem or constraint -> candidate-owned technique/judgment -> result or impact`. The cause may be omitted for space, but end with a metric or a concrete deliverable. Prefer `Before -> After`; if no metric exists, use a verifiable outcome such as consistency, error-state handling, or a completed screen/artifact.
-- Name the applied method or tool specifically: write `MySQL EXPLAIN + index tuning` instead of generic performance improvement, `optimistic/pessimistic lock` instead of generic concurrency handling, and `AWS CI/CD + S3 integration` instead of generic cloud deployment. Framework-only bullets must include the contribution target and resulting artifact.
-- For CPPM realtime communication, distinguish the AWS service, delivery call, and transport: `Amazon API Gateway WebSocket APIs` is the managed AWS service providing WebSocket connections, `API Gateway Management API`'s `PostToConnection` is the Worker Lambda delivery call, and `WebSocket` is the communication mechanism. Write `Amazon API Gateway WebSocket APIs integration limit` for the constraint and `delivered to the WebSocket connection through PostToConnection` for Trace delivery instead of using the ambiguous label `WebSocket API`.
-- When evidence spans several projects and professional work, prefer a scope-oriented label such as `RESTful API 설계·개발·연동` over a technology-list label. In the core capability, explain in one or two natural Korean sentences that the candidate designed, developed, and connected RESTful APIs, then connected differing data structures and state flows to frontend features covering retrieval/storage, search, asynchronous work, and exception handling. Put concrete stacks and project-specific evidence in the experience bullets, and never make separate projects appear to be one implementation.
-- Feature bullets may use `standard/protocol or technology -> feature -> user-visible change`; infrastructure bullets may use `cloud service -> connected flow -> deployment/operation artifact`. Keep `problem -> solution -> result` readable within one bullet, using an arrow only when it improves scanability.
-- Design visual hierarchy as part of bullet writing: keep one problem/action/result chain per bullet, usually within 1-2 sentences, and normally bold only the metric/deliverable plus one key result phrase, with no more than 1-2 emphasized spans per bullet. Do not bold full problem clauses, every technology name, or every sentence; the first scan should reveal the result and the candidate's contribution.
-- When useful, order a project entry as `period -> JD-relevant tech stack -> team/role -> one-sentence service overview -> evidence bullets`. Keep the overview to one sentence and put detailed problem, judgment, implementation, and impact in the bullets. Tech stack lines are evidence for the JD, not a complete inventory.
-- Apply these shared expression patterns when selecting or rewriting capabilities: `API/data integration` should foreground the user flow completed across backends and external APIs; `state/realtime UI` should foreground how users understood and continued their work; `performance/data` should foreground the observed bottleneck, analysis method, and Before/After; `AI/Agent` should foreground the operational constraint, Agent structure, and user-visible result; `AI Native/SDD` should foreground changing requirements, documentation/harness updates, verification, and the improvement loop. If a capability still reads as a parallel technology list, rewrite it around the outcome.
-- For cross-project capabilities, state the shared outcome first, name the contributing projects, and leave project-specific implementation and metrics in their own experience bullets. Never merge APIs, state management, or performance figures from separate projects into one implied service or causal result.
-- Do not use broad phrases such as `AX 전환에 기여`, `operationalized`, or `architecture design` by themselves. Attach concrete source-backed evidence such as multi-agent flow, progress/status UI, API/data flow, SQS asynchronous processing, secret/key separation, search UX, or other candidate-owned implementation details.
-- Write in natural Korean that a reviewer can understand on first read. Do not drop internal abbreviations, domain names, or technology names without context. Explain who used the product, what workflow it supported, and what screen/API/state/data flow the candidate worked on.
-- Apply a user-first explanation pattern to every generated artifact, not only AI or CPPM cases: start with the user-visible or business-relevant change, then explain the problem and constraints, the candidate's decision and implementation, the technical mechanism, and the measured or observed result. A reader without the project's technical context should understand the situation and the candidate's contribution from the first sentence.
-- Do not use technology names as standalone claims. Explain why the technology was used and what changed, such as `장시간 작업이 요청 제한으로 끊기지 않도록 SQS로 작업을 분리` or `처리 단계를 사용자 화면에 실시간으로 보여 주기 위해 API Gateway Management API의 PostToConnection으로 WebSocket 연결에 이벤트를 전달`. Apply this rule consistently to resume bullets, capability sections, cover letters, motivation answers, portfolio cases, and activity descriptions.
-- Keep the wording accessible without becoming technically shallow. A good bullet should show why the technology was needed, how the candidate integrated or configured it, and what exception handling, state management, performance, security, UX, or validation scope was personally handled.
-- Keep the writing natural and modest. Avoid AI-like declarative phrasing such as `증명하겠습니다`, `전환하는 개발자`, or `역량을 보유했습니다`. Prefer fact-based phrasing such as `구현했습니다`, `경험이 있습니다`, `연결해 봤습니다`, or `맡았습니다`.
-- For verified specification-driven work, show the full chain rather than only the final result: clarify changing requirements and unfamiliar domain information in documents, define API/directory/account-management rules and validation criteria, improve the SDD document plus Codex harness/prompts as gaps are found, verify the implementation against the specification, and then describe the resulting service separation and implementation.
-- Include a `지원동기` section only when the JD/form asks for it or when the company/role naturally connects to the candidate's interests, narrative, and verified experience. Do not force personal storytelling when the connection is weak; omit the section instead. Do not include a separate `소개` section unless the JD or application form explicitly asks for a brief self-introduction, 자기소개, or About-style text.
-- When a resume-level motivation section is included, place it high enough that the interviewer sees the company/role fit before the detailed evidence, but keep it short and immediately followed by the candidate's strongest evidence. Do not let motivation or self-introduction consume the first page.
-- Before finalizing any application, extract and verify the posting/form's required submission contents separately from the role requirements. If the posting says the resume must include 자기소개 or 지원동기, treat those as mandatory deliverables and place them in the requested resume or required form fields; do not leave them only as an optional suggestion. When the form already has required 자기소개/지원동기 questions, verify those fields are populated before submission.
-- Treat `지원동기` as the explanation of why this company's specific work matches the candidate's verified problem-solving pattern, not as company praise, preference, or a generic career aspiration.
-- Use this common motivation structure when a motivation section is needed: `specific company/role problem or work nature -> why that point connects to the candidate's experience or interest -> 1-2 adjacent verified experiences -> how the candidate can work in that role after joining`.
-- In `지원동기`, domain-adjacent work must stay domain-adjacent. If the candidate developed software for workflows that include CRM marketing, do not phrase it as having performed marketing operations; state the software/product development contact point and verified implementation scope.
-- When writing `지원동기`, the main point is why this specific company. Use source-verified company vision, values, business direction, products/services, and recent signals, then connect them naturally to the candidate's interests, narrative, and verified strengths. Only after that, connect why this team, why this role, and what concrete work the candidate can do there. If the paragraph would still work after replacing the company name, do not use it as motivation.
-- Do not write `지원동기` as a JD summary. Phrases equivalent to `역할로 이해했습니다`, `반복 업무와 병목을 이해하고`, or `운영 가능한 솔루션으로 만드는 역할` are weak if they only paraphrase the posting. Briefly identify the company/team/role context, then move quickly to source-backed adjacent work the candidate has done and the concrete work they can perform in that role.
-- Do not end `지원동기` with generic wishes such as `기여하고 싶습니다`, `성장하고 싶습니다`, `역량을 발휘하겠습니다`, or `비전에 공감했습니다`. End with the concrete work the candidate can perform and the way they can work, grounded in verified experience.
-- Portfolio artifacts must read like a technical portfolio similar in intent to `assets/portfolio/박건우_포트폴리오.pdf`, not like a resume summary. Each selected case should show `problem/constraint -> architecture or flow -> code/implementation points -> AI usage method -> verification/result` when source facts support it.
-- For tailored portfolios, search the complete Notion project evidence pool, including newly added projects. Do not restrict the pool to named companies or programs. Prefer professional evidence when the JD match and evidence strength are otherwise comparable, but select any project that directly proves a requirement and combine multiple projects when each contributes a distinct signal. Exclude only when the JD match, ownership, evidence, or publicity is insufficient.
-- For both resume and portfolio emphasis, use this evidence priority: `DGM UnitOne professional work -> internships -> bootcamp/education projects -> university projects`. University projects usually have weak practical hiring signal compared with DGM UnitOne; do not promote them into core competencies or representative projects by default. Even for AI/healthcare postings, prefer the source-backed DGM UnitOne experience of connecting Amazon Bedrock-based AI work-support features to screens, APIs, and asynchronous flows. Do not write university project experience as if it were production service work, and do not use labels such as `AI 추론 결과 서비스화` unless the source explicitly confirms real service deployment.
-- Include code-oriented implementation points where possible, such as `connectionId`-based WebSocket delivery, separating text chunks and Bedrock Agent Trace events from the Bedrock completion stream, using a singleton pattern to centralize Agent event subscriptions and cleanup, `requestAnimationFrame` scroll control, `LastEvaluatedKey` cursor pagination, DOMPurify sanitization, Lambda environment-variable API-key isolation, or Graph Agent Lambda subprocess/S3 URL return flow.
-- Include a visible Architecture/Flow block for each major portfolio case. If reusable image assets exist under `assets/portfolio`, use them. If no image assets exist, create a Typst text diagram with boxes/grids, for example `Frontend -> Amazon API Gateway WebSocket APIs -> Lambda -> Bedrock Agent -> SQS/DynamoDB/S3`.
-- Describe AI usage methods without overstating ownership. For DGM UnitOne common capability, use Figma MCP, Cursor, Codex, and Skills only in the verified context of publishing, technical research, PoC, and documentation workflow; include Plan-First Workflow or Researcher/Planner/Reviewer role separation only when relevant. Do not confuse AI-generated output with candidate-owned implementation and verification.
-- A technical portfolio should contain at least 5 troubleshooting cases. Default case candidates are `long-running Agent response wait experience`, `chat search and navigation`, `multi-agent architecture`, `API Gateway timeout with SQS asynchronous split`, `API key protection and XSS handling`, and `AI-assisted development process internalization`. If a case does not match the JD, replace it with another verified DGM UnitOne troubleshooting case rather than inventing one.
-- When creating or using architecture images, use AWS official Architecture Icons or user-provided image assets only. If official icons are not available locally, do not create unofficial AWS-like icons; use a Typst text diagram instead.
-- Treat the first resume page as the interviewer's decision surface. Put the candidate's JD-matched differentiators, strongest career/project evidence, and reason to interview them on page one. Do not waste page one on generic self-introduction or broad technology inventory.
-- Make the candidate's status visible on that first page: verified employment type and role for career entries, or `교육`/`단기 인턴`/new-grad context for non-career records. Do not make the interviewer infer the status only from project titles or lower-page history.
-- If a `대표 글`, `기술 기록`, `README`, `데모`, or `프로젝트 링크` is used as a differentiator, it must be a specific source-backed artifact that can support interview questions. Prefer one strong link over multiple generic links, and verify that the link is meaningful before placing it in the submitted resume.
-- Use `핵심 기술 근거` rather than a generic `핵심 역량` section when the resume needs a first-page capability summary. This section is not a skill inventory or JD-keyword checklist; it is a compact set of source-backed technical proof points.
-- Each `핵심 기술 근거` item must come from a verified source fact and should follow `problem/constraint -> technical judgment or implementation -> metric/result or concrete artifact`. If a JD qualification such as JavaScript fundamentals, web execution flow, AI tool review, collaboration, or performance improvement cannot be tied to such evidence, omit or narrow it rather than writing a generic claim.
-- Do not use generic labels or statements such as `기본기`, `자격요건 충족`, `문제 해결력`, `협업 역량`, `제품 구현력`, `AI·제품 연결`, `JavaScript 이해`, or `웹 기본 동작 이해` unless the same item immediately proves them through a concrete implementation and result. Prefer evidence labels such as `PR 데이터 공유 구조`, `SPA 초기 로딩 개선`, `역할별 화면/API 상태 연결`, or `AI 제안 검증 프로세스`.
-- A `핵심 기술 근거` item may repeat a high-signal metric from a later project bullet only when it helps the first page prove a JD requirement quickly. Keep it concise and do not invent a new causal story.
-- Rank candidate strengths by direct JD match, specificity of evidence (constraint, scope, result), differentiation, and overlap. Do not expand one CPPM experience into separate top-level items for every related detail; combine or drop multi-agent design, validation prompts, response optimization, and Trace UI according to the JD's highest-priority need.
-- Treat the experience bullets below core capabilities as evidence, not repetition. For each project/product, write `user/work context -> problem or constraint -> candidate-owned decision and implementation -> change/result`; place technology names inside that explanation. Keep one problem-solution-result chain per bullet. Split validation prompts, response-time optimization, and real-time status UI when their causes, actions, or outcomes differ. If there is no quantified business metric, use verified scope such as processing time, API count, constraints, exception coverage, or observed user impact, and qualify the impact conservatively.
-- For AX/AI/FDE roles, prefer source-backed capability labels such as `다중 Agent 업무지원 설계`, `장시간 AI 작업 운영화`, `Agent 응답 UI 구현`, `업무 플랫폼 기능 구현`, `AWS 서버리스 연동`, and `데이터 조회·관측 흐름 개선`. Attach concrete evidence in the same bullet: Master/Supervisor/OpenSearch/Graph Agent structure, Agent Instruction, Bedrock Agent Trace, Amazon SQS, AWS Lambda, Amazon API Gateway WebSocket APIs, DynamoDB cursor pagination, DOMPurify, API key server-side isolation, or other verified implementation details.
-- For frontend/product roles, prefer UI/state/API/data-flow labels such as `실시간 협업 상태 처리`, `업무 화면·API 구현`, and `검색·하이라이트·메시지 이동 UX`. Do not reduce a verified implementation into analysis-only wording. Reduce AI/AWS/database keywords on page one only when they do not directly support the JD.
-- Build core-competency bullets by this sequence: extract the JD's qualification/preferred-qualification wording, find direct source facts in Notion/local source/user latest corrections, rank by direct match, evidence specificity, differentiation, and overlap, select only 3-5 strengths, then rewrite each into one natural sentence that shows problem/constraint, candidate-owned judgment or implementation, and result. Do not use a phrase that is neither in the JD nor supported by source facts.
-- For DGM UnitOne common capability, use these as candidates for AI/AX/FDE/automation/developer-productivity JDs: `AI를 개발 프로세스에 도입해 퍼블리싱, 기술 조사, PoC, 문서화 과정을 표준화`, `Plan-First Workflow`, `Researcher·Planner·Reviewer 역할 분리`, and `반복 퍼블리싱 작업 시간 4시간 -> 30분(87% 단축)`. In submitted artifacts, use only the one most JD-relevant point and keep it short.
-- For CPPM, use these as candidates for AI/AX/FDE/fullstack/AWS/workflow-automation JDs: `Agent Trace 기반 실시간 작업 단계 UI`, `싱글톤 패턴을 활용한 Agent 이벤트 구독 관리`, `requestAnimationFrame 기반 렌더링 제어`, `debounce 300ms`, `LastEvaluatedKey 기반 페이지네이션`, `Lambda 환경변수 기반 API Key 격리`, `DOMPurify 기반 Sanitization`, `Master -> Supervisor -> OpenSearch·Graph Agent 3계층 Multi-Agent 아키텍처`, `Amazon Bedrock Knowledge Base(RAG)`, `CloudWatch 로그 분석`, and `Graph Agent 기반 서버리스 시각화 파이프라인`.
-- For cloud/AWS JDs, CPPM may be positioned strongly as `AWS 운영형 서비스 구현` or `AWS 기반 서비스 기능의 실행·관측·오류 흐름 구현` when the JD values cloud operations, MSP, DevOps, backend, AI infrastructure, or service reliability. Keep the scope bounded to the verified service-function layer: AWS Lambda execution, Amazon API Gateway WebSocket APIs delivery, Amazon DynamoDB storage/query, Amazon OpenSearch Service retrieval, Amazon S3 result return, Amazon CloudWatch log/error-flow analysis, and verified Bedrock Agent integration. Do not phrase it as total cloud-infrastructure ownership, EKS operations, network-device operations, data-center operations, or CSP migration unless a current source verifies that exact work.
-- For CPPM cloud-operation wording, `AWS 운영 경험` is allowed only as shorthand for operating and improving AWS-backed application/service flows, not as a claim of owning all cloud infrastructure. Prefer sentences like `AWS 기반 AI 업무지원 기능의 실행·저장·검색·전송·오류 분석 흐름을 실제 서비스 기능으로 구현` or `CloudWatch 로그로 Agent 라우팅, Lambda 오류, OpenSearch 재시도 흐름을 분석`; avoid vague claims such as `클라우드 운영 전문가`, `AWS 인프라 전체 운영`, or `EKS/Kubernetes 운영 경험`.
-- Do not paste the long CPPM/FBITI candidate list wholesale. Deduplicate overlapping claims and select only 3-5 bullets that match the JD's qualification/preferred-qualification signals. Merge repeated security wording into one API-key/XSS bullet, and repeated DynamoDB debounce/pagination wording into one data-query bullet.
-- Strong wording such as `ERD 설계부터 RESTful API 설계 및 개발까지 전담` requires source or latest-user confirmation. Use the correct spelling `RESTful API` in submitted artifacts.
-- Do not put defensive meta sections or phrases in submitted resumes/portfolios, such as `제외 기술`, `직접 근거가 약해`, or `보유 기술처럼 쓰지 않습니다`. Keep those judgments in the strategy document only; submitted artifacts should simply select verified experiences.
-- Preserve visible tildes in all range expressions. In Typst body text, a raw `~` can render as spacing instead of a visible tilde, so write ranges as escaped tildes such as `1\~2분`, `3\~5주`, and `2024.02.07\~2024.02.25`. Do not silently replace range tildes with spaces or hyphens.
-- Keep reusable career facts in the Notion Developer page. Do not create or expand local markdown source files unless the user explicitly asks for a snapshot update.
-- In resumes, company work performed during employment must stay under the career section. Do not duplicate CPPM, 프비티, or other employer work under the standalone project section.
-- When one employment entry contains multiple products, projects, or workstreams, split them inside the career entry with small subheadings instead of mixing all bullets in one flat list. Keep them under `경력`, not under the standalone project section.
-- For 디지엠유닛원, the career entry must be split with visible small subheadings for exactly two workstreams: `LG 공통업무 플랫폼(CPPM)` and `프비티`. Do not mix CPPM, 프비티, and AI Native Workflow bullets into one flat list. Do not create `AI Native 워크플로우` as a standalone project or case; fold AI Native process evidence into the relevant actual project, usually `프비티`.
-- For CPPM project/product descriptions, use the compact project title `LG 공통업무 플랫폼(CPPM)`. Do not repeat `LG CNS 프로젝트` or add an explanatory affiliate-scale phrase in the title when the employer context already identifies the work. For self-introductions, resume headlines, top positioning statements, and motivation sections, avoid the client company name and use wrapped wording such as `외부 LLM 사용이 제한된 환경의 AI 업무지원 기능` or `AI Agent 기반 업무지원 기능`. Do not shrink CPPM into a small internal AI-support feature; describe AI work as the candidate's feature area inside that platform.
-- Use the verified 프비티 workstream period `2025.07 – 2026.01`; never write `상세 기간 미확정` for it.
-- For CPPM/AX positioning, prefer the user's safe phrases: `Bedrock Agent, SQS, WebSocket 진행 상태 UI를 연결` and `외부 LLM 사용이 제한된 환경에서 AI 기능을 업무 화면으로 구현`. However, do not lead one-line headlines with generic environment context such as `보안 제약`; almost every enterprise environment has security constraints, so it is not a strong personal differentiator. In self-introductions/headlines, foreground the candidate's verified strength: understanding work flows and implementing the screen, API, and AI Agent structure together.
-- Describe 프비티 from its official site as a franchise-headquarters all-in-one solution. When more context is needed, explain that it integrates membership, order/procurement, inventory, franchisee management, and CRM marketing workflows.
-- For every career and standalone project entry, use this order: `project/product name -> tech stack -> project/product description -> bullets`. Place the tech stack and description directly under the project name, not mixed into the bullets.
-- Put the project/product description directly under the tech stack in a similarly styled smaller/lighter line. Keep it to one short sentence, ideally around 40 Korean characters, and explain only the product/service nature. Move background, problems, implementation detail, and results to bullets.
-- Treat tech stacks as JD-matching evidence, not a full inventory of every tool used. Analyze responsibilities, required qualifications, and preferred qualifications, then list only technologies that directly match the JD or credibly demonstrate an adjacent required competency. If a used technology is unrelated to the JD, omit it or keep it only in a necessary bullet context.
-- Tech stack lines must contain only official technology or product names as written in official documentation or product pages. Do not include role names, project descriptions, business-domain phrases, outcomes, education-program names, work-method labels such as `AI Native Workflow`, or job titles such as `Software Engineer`.
-- If an official name is uncertain, verify it against official documentation, product pages, README files, or package names before writing it in a tech stack. Do not put class names, internal object names, or invented abbreviations in tech stack lines.
-- Keep tech stack order intentional. Put the most JD-relevant or reviewer-critical technologies first; when priority is equal, use `primary framework/library -> language/state management -> UI/styling -> realtime/collaboration/domain technology -> build/deployment/infrastructure`.
-- For AWS services, use official product names such as `Amazon Bedrock`, `Knowledge Bases for Amazon Bedrock`, `AWS Lambda`, `Amazon API Gateway WebSocket APIs`, `Amazon SQS`, `Amazon DynamoDB`, and `Amazon OpenSearch Service`.
-- Use user-corrected canonical project tech stacks as the default candidates: 프비티 `Next.js, React, styled-components, Vite, Spring Boot, MySQL, Docker`; CPPM `React, styled-components, Vite, Docker, AWS`; Code Sync `React, Tailwind CSS, Yjs, WebSocket, WebRTC, Vite`. Trim only items that do not fit the JD.
-- Adjust tech-stack granularity to the JD. For frontend JDs, avoid foregrounding databases, backend tools, or detailed AWS services that dilute frontend fit. For AI/FDE/automation/AWS JDs, expand CPPM's `AWS` into 3-4 core services such as `Amazon Bedrock`, `AWS Lambda`, `Amazon SQS`, and `Amazon DynamoDB`.
-- If the AWS list becomes too long, keep only the strongest 3-4 services in the tech stack and explain details such as `Knowledge Bases for Amazon Bedrock`, `Amazon API Gateway WebSocket APIs`, `Amazon OpenSearch Service`, and `Amazon CloudWatch` in bullets.
-- In resumes, place `경력` first, then JD-relevant standalone `주요 프로젝트`, then only the `교육 및 활동` records that support the JD or are required by the application. Source completeness belongs in Notion, not every tailored resume: omit unrelated education details, short internships, awards, certificates, language scores, and military service unless the JD/application requests them or they materially strengthen this candidacy. Keep `학력` and any required profile fields factual and separate; never merge them into a vague project block.
-- Treat SKALA as education, like 크래프톤 정글. Do not create a standalone project named `SKALA 4기 실습`, and do not position ordinary SKALA practice as professional project work.
-- Use 스마일게이트 윈터데브 only when it directly proves a frontend requirement, as one short supporting line under `교육 및 활동`. Omit it for other JD types and do not let any education history displace stronger professional evidence.
-- Describe SKALA's official identity only as `SK AI Leader Academy`, an AI service development education program, or SW/Data/AI education with team projects. Do not call it a backend/cloud-native course unless an official source explicitly says that.
-- Include SKALA as its own dated `교육 및 활동` record only when the JD/application needs education context or its verified work directly proves a requirement. Expand its verified Java/Spring, RDBMS, concurrency, containers, or Kubernetes evidence for matching fullstack/backend/cloud-native roles; omit unrelated coursework details for frontend or AI/Agent roles. Keep any included entry to at most 1-2 relevant bullets. Use factual completed-or-ongoing wording such as `960시간 과정 이수 중`, `과제를 수행`, or `서비스 전체 흐름을 학습` rather than weak progress wording such as `개별 과제 코드를 정리하고 있습니다`, `연습하고 있습니다`, or `배우고 있습니다`. Technical terms such as MSA, Spring Cloud, Kafka, JPA, PostgreSQL, Docker, query tuning, index/execution-plan analysis, transactions, concurrency, tests, and service decomposition may appear only as README/code/execution-backed implementation, analysis, or performance evidence, not as an invented official course title.
-- For cloud, DevOps, backend, full-stack, or infrastructure-adjacent JDs, SKALA Docker/Kubernetes evidence should be written as deployment-structure capability, not as weak classwork wording. Avoid `Docker 실습`, `Kubernetes 과제`, and `수업 들음` in submitted artifacts; use verified units such as `Docker 멀티스테이지 이미지 구성`, `JDK/JRE build-runtime separation`, `non-root container execution`, `Actuator management port separation`, `Kubernetes Deployment/Service/Ingress/ConfigMap/Secret`, `startup/readiness/liveness Probe`, `HPA`, `PDB`, `imagePullSecrets`, `namespace`, `resource requests/limits`, `readOnlyRootFilesystem`, and `RollingUpdate strategy` when the local files or Notion source confirm them.
-- Do not turn SKALA Docker/Kubernetes learning into production operations. If a JD wants cloud-native or Kubernetes evidence, phrase it as `Spring Boot 애플리케이션을 Docker 멀티스테이지 이미지로 구성하고 Kubernetes 배포·라우팅·상태검사·확장 구조를 정리/구성` unless deployment to a real owned production service is verified.
-- Do not emphasize toy/service-theme descriptions from SKALA web-mini such as public trials, AI judges, voting, or relationship-dispute scenarios. If that work is relevant, translate it into concrete engineering evidence such as API design, STOMP/event flow, persistence, query behavior, testing, deployment, or client-server integration.
-- Treat 크래프톤 정글 as CS-focused education and include it as a separate dated `교육 및 활동` record only when it materially supports the JD or is needed for education chronology. Do not automatically add a low-level CS/OS detail bullet to every role; select only the specific evidence that proves a stated requirement. Code Sync is always an independent `주요 프로젝트` record, never a career or education/activity entry, even though it was completed during 크래프톤 정글. Do not append `크래프톤 정글 최종 프로젝트` to the submitted project title unless the application specifically requires that affiliation. When an algorithm-learning stack line is useful for the JD, list the user's verified `C, Python`; Pintos is not a tech stack item or backend/infrastructure work.
-- For 크래프톤 정글 AWS special lectures, use them only as education/activity evidence for AWS network and compute fundamentals. When source-backed, state that AWS practitioners led a two-day workshop covering VPC, Subnet, Public/Private IP, DNS, DHCP, and EC2, and connect it to later DGM UnitOne AWS service implementation and SKALA Docker/Kubernetes deployment-structure learning. Do not promote the workshop itself into commercial AWS operations experience.
-- For the 디지엠유닛원 career role label, always state the verified employment type `정규직` alongside the role: use `정규직 · Frontend Engineer` for frontend JDs, and `정규직 · Software Engineer` for fullstack, AI Native, AX, AI service, PI, or Builder-oriented JDs. This rule applies only to the 디지엠유닛원 employment entry. Keep 크래프톤 정글 Code Sync's project role as `Frontend Developer`, while describing the affiliation as a 크래프톤 정글 final project/education outcome.
-- Keep the source records complete in Notion, but select education/activity entries for each resume by direct JD fit, required application fields, or a clear role-specific advantage. Do not include an entry merely because it is verified. Any included record must remain independent, dated, and factually labeled; keep it to at most two relevant bullets. Do not put education, short internships, awards, military service, or academic history under `경력` or `주요 프로젝트`.
-- Never assign an employment-style role to an education/activity record unless the source explicitly verifies that role. In particular, do not label an academy participant `Backend`, `Full-stack`, `Engineer`, or similar based on course content; use a source-backed neutral education label or the program's verified participant label.
-- For this user's academy and boot-camp records, use the role label `교육` (not `교육생`) unless the user later supplies a different official participant title. Keep short internships explicitly labeled `단기 인턴`.
-- Awards should list actual awards only. Do not place "selected project", homepage listing, or internal showcase results under awards unless the source clearly treats them as an award.
-- Never include `크래프톤 정글 우수 프로젝트 선정` as an award, achievement, or other submitted item for any JD. Use Code Sync only as a project implementation experience.
-- For Code Sync, prefer quantified implementation impact over a generic feature list when the JD values frontend, performance, collaboration, or product improvement. Candidate evidence includes GitHub API calls `44 -> 22`, initial JavaScript bundle `1,820KB -> 99KB`, PR-review discomfort responses `50 -> 5`, and weekly team PR comments `285 -> 89`. Use the survey, comment, and bundle figures only with their measurement scope/conditions, and phrase them as measured records or contribution rather than unsupported sole causation. In particular, PR-review discomfort `50 -> 5` is a project before/after survey result from using Code Sync, not a direct causal result of only the file tree, diff viewer, or comment panel; write it as `프로젝트 사용 전후 설문에서 ... 줄었습니다`.
-- For Code Sync's initial-loading performance bullet, preserve the causal distinction: the issue was the SPA loading code for unused screens during the initial entry, not the mere use of multiple libraries. Explain the structure, then the Route-level code splitting, lazy loading, or `React.lazy` implementation, and then the measured bundle result. Do not write that the libraries themselves caused the slowdown.
-- Prefer the user's "생각등대" bullet pattern for compact resume writing: `[domain/feature] + [problem] + [-> solution technique] + [-> quantified result or concrete deliverable]`. Use arrows or concise connectors to expose the problem-to-decision-to-result chain, and never replace that chain with a technology-only list.
-- For frontend capability statements, do not reduce state handling to `tested delayed/empty/error responses`. When source-backed, explain that the candidate considered success, loading, empty, failure, long-running, and navigation states from the user's perspective, then attach concrete evidence such as user-friendly Agent Trace steps delivered through `PostToConnection`, search/highlighting/message navigation, or other screen and event-flow implementation.
-- Treat the same story structure as the default for career bullets, project bullets, core capabilities, activity descriptions, self-introductions, motivations, and portfolio cases. Do not force every item into an artificial incident; for a feature or activity, use `user/task context -> what the candidate built or organized -> resulting workflow or artifact` while preserving the actual scope.
-- Keep the `핵심 기술 근거` section scannable: normally use about four items, one sentence per item, but each item still needs the minimum `problem/constraint -> technique -> result/artifact` chain. If this makes the section too repetitive with the career/project bullets, keep only the strongest non-redundant evidence instead of reverting to abstract labels.
-- In each `핵심 기술 근거` item, keep the label or opening phrase technical and evidence-bound, then write the explanation as natural Korean prose rather than a comma-separated technology list. State what was changed, connected, separated, measured, or verified; do not force unrelated capabilities into one item.
-- For Typst pagination, make section labels sticky to their following content (`block(sticky: true)` or equivalent) while leaving long entries breakable. Do not wrap an entire section or role in a non-breakable block to fix one orphan; that can create a third page or leave half a page empty. Inspect every compiled page for a section label with no following content, a project title and stack stranded at the page foot, split bullets, clipped text, and unusually unbalanced page fill. Adjust local spacing or trim only JD-irrelevant detail with evidence; keep type legible and avoid an almost-empty extra page for a short final line.
-- In Typst resume prose, escape a literal ASCII range tilde as `\~` (for example, `1\~2분`). An unescaped `~` can render as spacing and disappear from the visible range. After compiling, inspect extracted PDF text for every range expression that uses it.
-- When the JD values responsive or multi-device UI, distinguish viewport responsiveness from role/service-mode differences. If the source proves layout behavior across viewports, use `반응형 화면`. If the source proves different product modes by user or operator type, such as 프비티 사장님·사용자용 모바일 화면, 가맹점 태블릿 화면, and 본사 데스크톱 모드, write `사용 주체별 화면 흐름` or `역할별 서비스 화면` instead of flattening it into generic responsiveness. Do not imply native mobile or desktop-app experience unless verified.
-- A one-line headline is optional, never a required resume field. Use it only when one concise, source-backed fact gives an interviewer new decision-relevant information; otherwise omit it. Never use a role restatement, generic breadth claim, abstract outcome, or a sentence that merely paraphrases the JD.
-- Review additional Code Sync evidence when relevant: BlockNote and Excalidraw/DrawBoard integrated into the same Yjs session, `html-to-image` editor-image sharing, commit-SHA-based PR file retrieval, and outdated-comment handling. Keep Code Sync as the final project of 크래프톤 정글 and separate it from 디지엠유닛원 employment.
-- Keep selected source-verified certificates in an independent `자격증` section with credential and exact date. When a JD explicitly mentions SQL or SQLD, connect SQLD to verified SQL evidence such as SKALA PostgreSQL execution-plan analysis, index/Materialized View changes, and measured query improvement; otherwise omit the credential if it adds no role-relevant signal.
-- 아티피셜 소사이어티 is never a career entry. Keep it as a separate dated `교육 및 활동` entry with role `단기 인턴`. The user's verified scope is training-data acquisition through Crawling, preprocessing and 데이터 어그멘테이션, EasyOCR-based OCR quality checks, and model-performance improvement support; do not inflate this into ownership of an entire production model or service. For AI/ML/computer-vision JDs, this detail can be prioritized.
-- Include verified language information in its own `어학` section only when the JD/application values it; keep any included score concise and dated, without certificate number or unverified expiration date.
-- Include verified awards in their own `수상` section only when they materially strengthen the application; use chronological factual bullets and do not add unverified award criteria or winner-scope details.
-- Awards, when included, must be chronological bullets with dates. Do not compress unrelated awards into one comma-separated row.
-- Include military service in its own `병역` section only when the application requests it or it directly supports a JD requirement. Use only verified facts such as signal soldier and peer counselor; do not expand it into telecom equipment development or embedded experience.
-- Include 아티피셜 소사이어티 only for AI/ML, computer-vision, OCR, or dataset-focused JDs where its verified scope directly helps; otherwise omit it from the tailored resume. When included, keep it as a separate dated `교육 및 활동` entry with role `단기 인턴`, exact period `2022.07.04~2022.07.22`, and bounded factual scope. Apply the same relevance filter and separate-entry rule to every other short internship.
-- Treat verified technical and collaboration records as resume evidence, but keep their sections distinct. Do not include Toonners in resumes or portfolios for the current workflow. For frontend JDs, use only Code Sync, CPPM, and 프비티 as project evidence. For backend or cloud JDs, use 디지엠유닛원, SKALA, and verified SKALA MSA/web-mini evidence as the base. For PM or AI Native JDs, also review the verified MSA/web-mini PM/convention-governance experience. Add unrelated side projects only after explicit user instruction.
-- For frontend-related JDs, 스마일게이트 윈터데브 may appear only as one short education/activity line; omit it for all other JD types.
-- Do not use the fisheye project in submitted resumes or portfolios until an evidence link is confirmed.
-- Links should be attached to meaningful text, such as the project name, award name, official page label, or `[GitHub]`; do not append raw-looking links at sentence ends.
-- When the user corrects a reusable fact, update the Notion source when explicitly asked; otherwise reflect it in the generated company artifact and report that the source still needs a Notion update.
-- Avoid duplicating the same source paragraph across multiple company artifacts without JD-specific rewriting.
-- Portfolio summaries should be candidate-first, not JD-first. Do not open with a paraphrase like `the posting requires...`; start with the strongest verified work the candidate actually did, then add the JD connection briefly. For adjacent domains such as marketing/FDE, explicitly distinguish product-development contact with CRM/marketing workflows from actually performing marketing operations.
-- Portfolio cases should not merely repeat resume bullets. Each case should give the interviewer a technical thread to probe: problem/constraint, candidate-owned judgment and implementation scope, why the technology was used, result/validation, and remaining risk or learning. Include at least three of these dimensions per case.
-- One-line headlines should expose a verified personal differentiator, not generic environment context or self-positioning. For AX/AI/FDE roles, prefer submitted-document wording like `업무 흐름을 이해하고 화면·API·AI Agent 구조로 구현해 본 개발자`, grounded in verified enterprise work-platform experience, multi-agent AI functionality, response/progress UI, API, and asynchronous-flow integration. Avoid awkward internal review wording such as `현업 AI 서비스`, `현업 AI Agent 기능`, `현업 업무 플랫폼`, or `보안 제약이 있는 업무 플랫폼에서...`. In sensitive client contexts, omit the client name in headlines, self-introductions, and motivations while preserving the precise project description inside the relevant project section.
-- Avoid resume bullets that only restate the intro, subtitle, or responsibility scope. A career bullet should have a concrete problem, meaningful action, and outcome/metric/domain impact. If an item only says that a feature was improved or feedback was reflected without a result, keep it in the intro/subtitle/context or omit it.
-- Prefer concrete problem names, actions, and verifiable outcomes over generic self-praise.
-- Do not inflate scope or merge unrelated facts into a new causal story.
-- Treat future-scale, traffic, cost, or resilience claims as evidence-bound engineering reasoning. They may be used only when backed by load tests, measurements, design notes, README/code evidence, or the user's latest correction. Otherwise keep them out of submitted bullets.
-
-### 7. Render PDFs When Possible
-
-Run `typst compile` for the generated resume Typst file and write the PDF beside it as `박건우_이력서.pdf`. Only when an AI-usage portfolio Typst file was requested and generated, compile that portfolio file as well.
-
-If Typst or a template dependency is unavailable:
-
-- keep the `.typ` output
-- report the blocker directly
-- do not claim PDF generation succeeded
-
-### 8. Report Completion
-
-At the end, report:
-
-- JD analysis path used
-- submitted snapshot path when the user confirms application completion
-- strategy markdown path
-- resume Typst/PDF paths
-- existing portfolio PDF path when the user needs a submission reference
-- prioritized AI-usage portfolio-candidate Markdown path only when the JD explicitly asks for AI-usage evidence or the user explicitly requests it
-- verification commands run
-- remaining blockers or missing source files
-
-## Failure Rules
-
-- Do not generate tailored documents when company identification is unresolved and the user did not provide enough identity to name the application.
-- If a required source, JD section, or ownership detail is unavailable, record the limitation and stop short of a completed claim.
-- External submission and Notion writes remain separately authorized actions; preparing artifacts does not authorize them.
-
-## Validation
-
-Run the repository-level checks in `AGENTS.md`, then verify these skill-specific invariants:
-
-- the JD read route and Notion read/fallback route are recorded, and every retained experience has a narrow child-source read or an explicit limitation
-- the 12-section analysis, strategy, and atomic JD checklist exist; every row closes as `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외`
-- every selected claim maps to one source context and candidate-owned action; rejected facts, coined labels, framework defaults, and cross-project metric combinations are absent
-- employer work is not duplicated as a standalone project; education, activity, award, certificate, and language records remain correctly classified and JD-relevant
-- every metric has a measurement card, every detailed bullet passes [references/resume-bullet-quality.md](references/resume-bullet-quality.md), and motivation is specific to the company, team, and role
-- requested artifacts exist with the canonical filenames; optional self-introduction or AI-usage portfolio exists only when requested or required
-- Typst compilation, extracted-text contamination checks, and visual page review passed before reporting a PDF
-- form work, if requested, passed [references/submission-ledger-harness.md](references/submission-ledger-harness.md) before entry and after verified submission
-
-If any required check fails, report the exact missing item and stop short of claiming full success.
+- Put the strongest direct evidence for the role in the first-page top third.
+- Use adjacent evidence only with honest scope, such as learning, project application, or transferable implementation—not as direct production experience.
+- Prefer a few distinct, interview-defensible proofs over repeated keyword coverage.
+- State what will be omitted. Exclusion is part of tailoring, not missing work.
+
+### 5. Draft strategy first, resume second
+
+- Complete the requirement crosswalk and selected-evidence plan before editing Typst.
+- Each bullet should contain one problem or constraint, one candidate-owned decision/action, and one verified result or concrete deliverable.
+- Keep technical terminology official and precise. Humanize rhythm and sentence structure without replacing technical names with vague everyday wording.
+- Avoid generic self-praise, skill inventories without proof, defensive meta-language, and company-name substitution templates.
+
+### 6. Render and inspect
+
+- Compile Typst and verify that the PDF exists.
+- Extract PDF text and compare it with the strategy and source ledger.
+- Inspect page one, heading placement, wrapping, links, glyphs, clipped content, and page count.
+- Treat environment font fallback warnings separately from compilation failure.
+
+### 7. Run distinct reviews
+
+Follow [references/review-protocol.md](references/review-protocol.md):
+
+- evidence audit: source fidelity, ownership, dates, metrics, causality, and leakage
+- recruiter scan: top-third fit, 30-second readability, differentiation, repetition, and likely interview questions
+- artifact QA: parseability, layout, file contract, and exact JD crosswalk
+
+Consolidate findings once, revise once, and rerun the checks once. Continue only for factual, rendering, or validation failures—not for endless stylistic cycling.
+
+### 8. Report the result
+
+Report:
+
+- live/fallback source status
+- generated and intentionally omitted artifacts
+- verified strengths, adjacent evidence, and unresolved gaps
+- compilation and validation results
+- any existing unrelated repository failures separately
+
+Final submission, external upload, or moving files to `workflow/지원후/` requires a separate explicit user request.
+
+## Composition Priorities
+
+1. hard eligibility and role-defining responsibilities
+2. direct evidence with candidate ownership
+3. verified result, user-facing change, handled failure state, or concrete artifact
+4. preferred qualifications with direct or honestly adjacent evidence
+5. concise education, awards, certifications, and activities needed for context
+
+Do not let supporting backend, cloud, or AI content dominate a frontend JD unless the posting explicitly values it. Conversely, an AI/AX JD should lead with verified agent, data, evaluation, monitoring, or workflow evidence rather than generic web development.
+
+## Batch Mode
+
+For multiple postings:
+
+- analyze each exact posting independently
+- deduplicate by official posting ID or canonical URL, not title alone
+- keep company folders separate by posting ID
+- use the application ledger to prevent repeat work or repeat application
+- do not lower the evidence bar to increase volume
+- stop before application submission unless the user explicitly opens that gate
+
+## Stop Conditions
+
+Stop and explain the blocker when:
+
+- the complete JD cannot be recovered
+- mandatory eligibility is unmet or unresolved
+- the Notion source and fallback are both unavailable
+- a key claim has conflicting ownership, date, or measurement evidence
+- the target folder is a submitted immutable archive
+- requested wording would require fabrication or combine facts from different projects
+
+## Completion Standard
+
+The task is complete only when:
+
+- every JD atom has a disposition
+- every retained claim has a traceable source and evidence state
+- every metric has a measurement card or is removed
+- role lens and first-page priorities are visible in the rendered PDF
+- evidence audit, recruiter scan, parse/layout QA, `git diff --check`, and required skill validators pass
+- created files and unresolved risks are reported accurately
