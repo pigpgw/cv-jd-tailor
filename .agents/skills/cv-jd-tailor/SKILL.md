@@ -128,7 +128,16 @@ Resume filename rule:
 - Always name the submit-ready resume files `박건우_이력서.typ` and `박건우_이력서.pdf` inside the company-specific folder.
 - Keep analysis and strategy filenames company-specific for local traceability, but never generate or report a resume file named like `<application_dir>_이력서_박건우.pdf` as the final submission file.
 
-Use `workflow/지원후/<application_dir>/` as the immutable snapshot of files submitted at that time. Never edit, regenerate, overwrite, or delete anything under `workflow/지원후/` after submission, including when the source DB, skill rules, or `workflow/지원전/` are corrected. The existence of a submitted application folder is the application-status signal; do not create or update a separate application-tracker document. All content corrections belong in the source DB, shared instructions, or `workflow/지원전/`. A later application must create a new pre-submission artifact rather than changing the archived copy.
+Use `workflow/지원후/<application_dir>/` as the immutable snapshot of files submitted at that time. Never edit, regenerate, overwrite, or delete a company snapshot under `workflow/지원후/` after submission, including when the source DB, skill rules, or `workflow/지원전/` are corrected. A later application must create a new pre-submission artifact rather than changing the archived copy.
+
+### Submission ledger and duplicate-application guard
+
+- Keep one append-only local ledger at `workflow/지원후/00_지원이력.md`. This index is metadata, not a submitted company snapshot, so it may receive a new row only after a submission-success page or platform support-history entry is visibly verified.
+- Each row must contain `지원일자(KST) | 회사 | 직무 | 공고 ID | 원문 공고 URL | 지원 플랫폼 | 제출 이력서 경로 | 상태`. Use the canonical URL after removing tracking parameters. Never infer the support date from a file timestamp, analysis date, or folder creation date.
+- After verified submission, append the same company, role, posting ID, canonical URL, date, and status to the user's Notion application-complete list when that destination is available and the user authorized the external update. This is the cross-device duplicate-prevention record; the local ledger remains the evidence-linked workspace index.
+- Before opening or filling any application form, normalize the target posting by canonical URL and platform posting ID. Search both `workflow/지원후/00_지원이력.md`, existing `workflow/지원후/<application_dir>/` folders, and the Notion application-complete list. If the same posting ID or canonical URL is already marked `지원완료`, stop and report the duplicate instead of applying again. A same-company different-role posting is not a duplicate when its posting ID and canonical URL differ.
+- A folder alone is a fallback duplicate signal, not proof of the exact support date. When legacy submitted folders have no verified date or URL, record them only as `기존 보관본·일자 확인 필요`; do not invent missing metadata.
+- After the success screen is verified, move the exact submitted artifacts from `workflow/지원전/<application_dir>/` to `workflow/지원후/<application_dir>/`, append the ledger row, update Notion, and re-run the duplicate check. Do not mark an application complete after merely opening a form, uploading a file, clicking a button without a success result, or saving a draft.
 
 Derive `application_dir` as `{company_name}_{jd_identifier}`. Prefer the official posting ID, a unique ID in the source URL, or a user-provided identifier. If no identifier exists, use a short normalized role slug as the suffix; do not append a random hash. Reuse an existing directory for the same company and JD instead of creating a duplicate.
 
@@ -537,8 +546,8 @@ At the end, report:
 
 - Do not generate tailored documents when company identification is unresolved and the user did not provide enough identity to name the application.
 - Do not invent facts, numbers, roles, tools, or outcomes.
-- Do not write tailored results back into external document stores unless the user explicitly asks.
-- Do not create a separate application-tracker markdown file. Use the presence of a company folder under `workflow/지원후/` as the submitted signal, and use local resume/portfolio markdown files only as fallback snapshots if they already exist.
+- Do not write tailored results back into external document stores unless the user explicitly asks. The only standing exception is the Notion application-complete record when the user has explicitly requested cross-device duplicate tracking for submitted applications.
+- Before form work, run the submission-ledger duplicate guard. After a verified submission, update only `workflow/지원후/00_지원이력.md` and the Notion application-complete list; never rewrite an immutable company snapshot.
 
 ## Validation
 
@@ -553,6 +562,8 @@ Before claiming success, verify:
 - the analyzer markdown exists or a provided `analysis_path` exists
 - the analyzer markdown has the required 12 sections
 - the submitted snapshot exists under `workflow/지원후/` when the user says the application was submitted
+- before form entry, the canonical posting URL and platform posting ID were checked against the local submission ledger, existing submitted folders, and the Notion application-complete list
+- after verified submission, `workflow/지원후/00_지원이력.md` contains the KST date, company, role, posting ID, canonical URL, platform, submitted resume path, and `지원완료` status; the Notion application-complete list was updated or its access limitation was reported
 - the strategy markdown exists
 - the resume Typst file exists when generation was requested
 - the final resume Typst/PDF filenames are exactly `박건우_이력서.typ` and `박건우_이력서.pdf` inside the application folder, not company-prefixed names
