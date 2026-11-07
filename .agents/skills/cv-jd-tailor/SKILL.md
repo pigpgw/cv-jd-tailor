@@ -29,17 +29,7 @@ For the reusable project evidence schema and code-review procedure, read [refere
 
 For JD-to-evidence mapping, bullet selection/count, bullet structure, and quality review, read [references/resume-bullet-quality.md](references/resume-bullet-quality.md) before drafting or revising resume bullets. This is the controlling rubric when a draft feels too generic, too thin, or mismatched to the target role.
 
-Use these sources in order:
-
-- Primary resume/portfolio source: Notion `박건우 | Developer`
-  - URL: `https://confused-dietician-c17.notion.site/Developer-3c77caa087bd80ff9d73f63aeeebb4d7?pvs=74`
-- Local resume snapshot, fallback only: `db/이력서_원천.md`
-- Local portfolio snapshot, fallback only: `db/포트폴리오_원천.md`
-- Shared portfolio assets: `assets/portfolio/`
-
-Do not treat the local snapshot markdown files as newer than Notion unless the user explicitly says they corrected those files after the Notion page. Do not create duplicate base-source files under company folders. Company folders may contain company-specific tailored artifacts only.
-
-Source conflict order is explicit: the user's latest factual correction takes precedence over the Notion page, the Notion page takes precedence over local fallback snapshots, and local snapshots are used only when Notion is unavailable. More specific rules later in this skill may refine the JD-relevance filter, but never override the evidence gate.
+Use the source precedence and canonical paths defined in `AGENTS.md`. This skill adds only the retrieval and evidence-selection procedure below; it does not redefine repository-wide source or archive policy.
 
 ### Source retrieval routes and token budget
 
@@ -122,22 +112,11 @@ When asked to revise this skill and regenerate all pre-submission packages:
 6. Recompile every requested PDF, extract its text, scan Typst and PDF text for Japanese kana, replacement characters, and mojibake, then render and visually inspect every page. Report exact expected/completed counts and any source limitation; a green mechanical validator is not semantic approval.
 7. Before external upload, provide the exact posting-specific resume path, shared portfolio path, and optional self-introduction path. External submission remains a separate user-confirmed action.
 
-Resume filename rule:
-
-- `application_dir` is the management boundary for company/JD identity; do not repeat that identity in the submit-ready resume filename.
-- Always name the submit-ready resume files `박건우_이력서.typ` and `박건우_이력서.pdf` inside the company-specific folder.
-- Keep analysis and strategy filenames company-specific for local traceability, but never generate or report a resume file named like `<application_dir>_이력서_박건우.pdf` as the final submission file.
-
-Use `workflow/지원후/<application_dir>/` as the immutable snapshot of files submitted at that time. Never edit, regenerate, overwrite, or delete a company snapshot under `workflow/지원후/` after submission, including when the source DB, skill rules, or `workflow/지원전/` are corrected. A later application must create a new pre-submission artifact rather than changing the archived copy.
+Use the submit-ready filenames and immutable `workflow/지원후/` boundary defined in `AGENTS.md`.
 
 ### Submission ledger and duplicate-application guard
 
-- Keep one append-only local ledger at `workflow/지원후/00_지원이력.md`. This index is metadata, not a submitted company snapshot, so it may receive a new row only after a submission-success page or platform support-history entry is visibly verified.
-- Each row must contain `지원일자(KST) | 회사 | 직무 | 공고 ID | 원문 공고 URL | 지원 플랫폼 | 제출 이력서 경로 | 상태`. Use the canonical URL after removing tracking parameters. Never infer the support date from a file timestamp, analysis date, or folder creation date.
-- After verified submission, append the same company, role, posting ID, canonical URL, date, and status to the user's Notion application-complete list when that destination is available and the user authorized the external update. This is the cross-device duplicate-prevention record; the local ledger remains the evidence-linked workspace index.
-- Before opening or filling any application form, normalize the target posting by canonical URL and platform posting ID. Search both `workflow/지원후/00_지원이력.md`, existing `workflow/지원후/<application_dir>/` folders, and the Notion application-complete list. If the same posting ID or canonical URL is already marked `지원완료`, stop and report the duplicate instead of applying again. A same-company different-role posting is not a duplicate when its posting ID and canonical URL differ.
-- A folder alone is a fallback duplicate signal, not proof of the exact support date. When legacy submitted folders have no verified date or URL, record them only as `기존 보관본·일자 확인 필요`; do not invent missing metadata.
-- After the success screen is verified, move the exact submitted artifacts from `workflow/지원전/<application_dir>/` to `workflow/지원후/<application_dir>/`, append the ledger row, update Notion, and re-run the duplicate check. Do not mark an application complete after merely opening a form, uploading a file, clicking a button without a success result, or saving a draft.
+Before any form work and after every verified submission, follow [references/submission-ledger-harness.md](references/submission-ledger-harness.md). It is the single maintained procedure for canonical-ID duplicate checks, success evidence, local ledger rows, Notion synchronization, and support-folder movement.
 
 Derive `application_dir` as `{company_name}_{jd_identifier}`. Prefer the official posting ID, a unique ID in the source URL, or a user-provided identifier. If no identifier exists, use a short normalized role slug as the suffix; do not append a random hash. Reuse an existing directory for the same company and JD instead of creating a duplicate.
 
@@ -545,60 +524,20 @@ At the end, report:
 ## Failure Rules
 
 - Do not generate tailored documents when company identification is unresolved and the user did not provide enough identity to name the application.
-- Do not invent facts, numbers, roles, tools, or outcomes.
-- Do not write tailored results back into external document stores unless the user explicitly asks. The only standing exception is the Notion application-complete record when the user has explicitly requested cross-device duplicate tracking for submitted applications.
-- Before form work, run the submission-ledger duplicate guard. After a verified submission, update only `workflow/지원후/00_지원이력.md` and the Notion application-complete list; never rewrite an immutable company snapshot.
+- If a required source, JD section, or ownership detail is unavailable, record the limitation and stop short of a completed claim.
+- External submission and Notion writes remain separately authorized actions; preparing artifacts does not authorize them.
 
 ## Validation
 
-Before claiming success, verify:
+Run the repository-level checks in `AGENTS.md`, then verify these skill-specific invariants:
 
-- the JD was accessed with an MCP read first, or `browser fallback read` is recorded with its MCP failure/completeness reason
-- the Notion Developer source page was accessed through Composio (`NOTION_GET_PAGE_MARKDOWN` preferred) or the connection/access/fallback-staleness limitation was explicitly reported
-- every retained experience has a recorded narrow read of its relevant Notion child page, project page, or database record; an unavailable child source is treated as a scope limitation rather than silently filled from a parent summary
-- browser automation was not used for the personal Notion Developer source
-- if fallback snapshots were used, `db/이력서_원천.md` and `db/포트폴리오_원천.md` exist and their limitation is reported
-- `assets/portfolio/` exists when portfolio images are referenced
-- the analyzer markdown exists or a provided `analysis_path` exists
-- the analyzer markdown has the required 12 sections
-- the submitted snapshot exists under `workflow/지원후/` when the user says the application was submitted
-- before form entry, the canonical posting URL and platform posting ID were checked against the local submission ledger, existing submitted folders, and the Notion application-complete list
-- after verified submission, `workflow/지원후/00_지원이력.md` contains the KST date, company, role, posting ID, canonical URL, platform, submitted resume path, and `지원완료` status; the Notion application-complete list was updated or its access limitation was reported
-- the strategy markdown exists
-- the resume Typst file exists when generation was requested
-- the final resume Typst/PDF filenames are exactly `박건우_이력서.typ` and `박건우_이력서.pdf` inside the application folder, not company-prefixed names
-- when requested, the self-introduction Typst/PDF exists separately, was compiled successfully, and matches the posting's exact prompts and limits
-- no general company-specific portfolio Typst/PDF was generated; AI-usage portfolio Typst/PDF exists only when the JD explicitly asks for AI-usage evidence or the user explicitly requested it
-- when an AI-usage portfolio is requested, its candidates are ranked and each candidate contains architecture/code/AI-usage/result/scope fields
-- PDFs exist only if `typst compile` succeeded, or an existing PDF was deliberately reused and its path was verified
-- final resume/portfolio choices are traceable to analyzer sections 4-8
-- the strategy includes a `JD 원문 원자 체크리스트`, and every row is marked `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외` with a resume location or omission reason
-- if the user supplied additional JD text after initial generation, the checklist and resume were rerun against the latest supplied text
-- submitted bullets distinguish candidate-authored work from library/framework/cloud-service capabilities
-- generated content does not contain coined or merged technical labels that are not explicitly source-backed, such as `WebSocket Trace`
-- any uncertain implementation scope is downgraded or excluded instead of being stated as completed work
-- generated resume does not duplicate employer work under the standalone project section
-- standalone projects are separated project-by-project instead of grouped under vague education labels
-- SKALA is never presented as a major standalone project; include it under education/activity as a separate record, expand its technical evidence when it directly matches the JD, and keep it separate from professional career work
-- SKALA web-mini theme words such as public trial, AI judgment, voting, or relationship dispute are not foregrounded unless the JD unusually requires that domain
-- 크래프톤 정글 and SKALA are separate education/activity records with exact periods; their detail and order reflect JD relevance. Code Sync is considered for project evidence only when the JD supports its verified frontend/collaboration/API scope
-- all Notion projects were reviewed against the JD, and every selected or excluded project has a strategy reason
-- education/activity entries are independent, exact-period records in their own section and have at most two bullets each; JD relevance determines their detail/order, not whether the factual record is merged or deleted
-- 아티피셜 소사이어티 never appears under career; Toonners is absent from the current resume/portfolio workflow; frontend project evidence is limited to Code Sync/CPPM/프비티 and backend/cloud evidence is based on SKALA/디지엠유닛원
-- 스마일게이트 윈터데브 is present only as a one-line education/activity support item for frontend-related JDs and absent from other JD types
-- certificates and language information appear only when requested by the application or materially relevant to the JD; when included, keep them as separate, concise, dated factual entries
-- submitted artifacts do not contain defensive meta sections such as `제외 기술`
-- awards are dated chronological bullets in an independent `수상` section and do not include `크래프톤 정글 우수 프로젝트 선정`
-- every detailed experience bullet and technical stack item has an exact JD-fit mapping; profile and education records are selected by JD/application relevance and remain source/date verified
-- the first page contains a fact-based self-introduction within five rendered lines, 3-4 distinct core strengths, strongest role-specific evidence, and one verified AI-development workflow/result
-- each submitted bullet passes the same-context problem/decision/result or feature/verified-artifact check, names a source-backed technique where used, and ends in a metric, bounded validation, or concrete deliverable
-- every submitted time/performance metric has a measurement card in the strategy and states the measured request/workflow, concrete candidate change, Before→After value, and measurement scope; no vague optimization label stands in for the changed implementation
-- every submitted bullet passes the bullet language harness: one source-backed primary action, natural Korean predicate agreement, no stacked noun/technology list, no mixed problem chains, and no awkward connector sequence
-- a requested motivation explicitly answers why this company, team, and role from verified company and candidate evidence; it is not interchangeable with another company name
-- any user fact corrections made during the turn were reflected in the company artifact, and any needed Notion source update was either performed after explicit request or reported as pending
-- `workflow/지원후/` was not modified, regenerated, overwritten, or deleted after submission
-- every checklist `직접 반영`/`축소 반영` row has an exact resume excerpt verified in extracted PDF text, and no strategy statement contradicts the source or final resume
-- source Typst and extracted PDF passed the Japanese-script, replacement-character, and mojibake review; every flagged match has a recorded disposition
-- the final PDF was rendered and every page visually reviewed for clipping, broken glyphs, page-break defects, and hierarchy problems
+- the JD read route and Notion read/fallback route are recorded, and every retained experience has a narrow child-source read or an explicit limitation
+- the 12-section analysis, strategy, and atomic JD checklist exist; every row closes as `직접 반영`, `축소 반영`, `전략 리스크`, or `제출 제외`
+- every selected claim maps to one source context and candidate-owned action; rejected facts, coined labels, framework defaults, and cross-project metric combinations are absent
+- employer work is not duplicated as a standalone project; education, activity, award, certificate, and language records remain correctly classified and JD-relevant
+- every metric has a measurement card, every detailed bullet passes [references/resume-bullet-quality.md](references/resume-bullet-quality.md), and motivation is specific to the company, team, and role
+- requested artifacts exist with the canonical filenames; optional self-introduction or AI-usage portfolio exists only when requested or required
+- Typst compilation, extracted-text contamination checks, and visual page review passed before reporting a PDF
+- form work, if requested, passed [references/submission-ledger-harness.md](references/submission-ledger-harness.md) before entry and after verified submission
 
-If any validation step fails, report the exact missing item and stop short of claiming the full workflow succeeded.
+If any required check fails, report the exact missing item and stop short of claiming full success.

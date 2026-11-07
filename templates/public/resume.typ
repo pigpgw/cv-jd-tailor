@@ -7,8 +7,8 @@
   margin: (
     left: 18mm,
     right: 18mm,
-    top: 22mm,
-    bottom: 22mm,
+    top: 18mm,
+    bottom: 18mm,
   ),
 )
 
@@ -40,7 +40,7 @@
   offset: 1.6pt,
 )
 
-#let section(title) = [
+#let section(title) = block(sticky: true)[
   #v(2.25em, weak: true)
   #text(size: 13pt, weight: "bold", fill: accent)[#title]
   #v(-1em)
